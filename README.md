@@ -7,6 +7,8 @@
 
 God Code is a **programming language that reads like scripture**. Write real software in words of faith, in your own language, and watch it run. A complete engine with a real lexer, parser, interpreter, standard library of scrolls, a tamper-evident covenant ledger, and an AI-native design. Human-readable, safe, and built for humans and AI creating together.
 
+> God Code is an open-source project of **Alistos Global**. The code is Apache 2.0 licensed and belongs to everyone. Alistos Global stewards the project, its name, and its direction.
+
 ---
 
 ## ✨ What Is God Code?
