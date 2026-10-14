@@ -217,7 +217,7 @@ QEDA INDALO</pre>
     <h2><span class="secnum">06</span> Intent &amp; chain</h2>
     <p>God Code learns to ask <em>why</em>. Name a rite's purpose in plain words, and the Spirit watches over it:</p>
     <pre><code>DECLARE INTENT "bring peace to the household" ON evening_blessing</code></pre>
-    <p>When the rite is invoked, alignment is blessed; drift is counseled gently, never punished. You can also anchor any value's hash on a chain and keep the receipt (<code>ANCHOR(x)</code>), or lay a question before the local oracle (<code>CONSULT("...")</code>). Agents get six MCP-compatible tools via <code>godcode tools</code> and a JSON-RPC bridge via <code>godcode bridge</code>. Try the three creations: <code>intent_demo.god</code>, <code>anchor_demo.god</code>, <code>consult_demo.god</code>.</p>
+    <p>When the rite is invoked, alignment is blessed; drift is counseled gently, never punished. You can also anchor any value's hash on a chain and keep the receipt (<code>ANCHOR(x)</code>), or lay a question before the local oracle (<code>CONSULT("...")</code>). Agents get seven MCP-compatible tools via <code>godcode tools</code> and a JSON-RPC bridge via <code>godcode bridge</code>. Try the three creations: <code>intent_demo.god</code>, <code>anchor_demo.god</code>, <code>consult_demo.god</code>.</p>
 
     <h3>When the Spirit corrects you</h3>
     <p>Mistakes are met with kindness, not scorn. Misspell a rite or a name and the heavens suggest the word you meant:</p>
@@ -225,7 +225,16 @@ QEDA INDALO</pre>
   5 |   INVOKE BLESSIN("seeker")</code></pre>
     <p>The command line shows the exact line that stumbled. Read it, take the suggestion, and speak again.</p>
 
-    <h2><span class="secnum">07</span> Where to go next</h2>
+    <h2><span class="secnum">07</span> Permission manifests</h2>
+    <p>A creation declares what it may touch, at the top of the scroll. Anything it reaches for without declaring is gently stopped:</p>
+    <pre><code>DECLARE PERMISSION TO READ "data/"
+DECLARE PERMISSION TO WRITE "out/"
+DECLARE PERMISSION TO SPEAK WITH "api.example.com"
+DECLARE PERMISSION TO ASK THE WORLD
+DECLARE PERMISSION TO SUMMON "reports.weekly"</code></pre>
+    <p>Reading files, writing files, reaching the web, speaking with the outer world, calling on plugin powers. Each declared, each bounded. Imported scrolls bring their own declarations, and they are honored too. Read any scroll's manifest without running it: <code>godcode permissions my-scroll.god</code>.</p>
+
+    <h2><span class="secnum">08</span> Where to go next</h2>
     <ul>
       <li><a href="https://github.com/godcodeengine/Godcode-engine/blob/main/docs/LANGUAGE_REFERENCE.md">Language Reference</a> — the complete specification</li>
       <li><a href="https://github.com/godcodeengine/Godcode-engine/tree/main/examples">Examples</a> — working creations, including the intent, anchor, and consult demos</li>

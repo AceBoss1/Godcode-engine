@@ -260,7 +260,14 @@ class Parser:
             self._advance()  # the word ON
             rite = self._expect(TT.IDENT, "a rite name").value
             return A.DeclareIntent(text=text, rite=rite, line=d.line, col=d.col)
-        # --- end v4.0 ---
+        # --- permission manifests: DECLARE PERMISSION TO <power> ---
+        # PERMISSION and TO are soft keywords (plain identifiers by text), so
+        # `DECLARE permission AS x` keeps working: only DECLARE followed by
+        # the word PERMISSION takes the manifest path.
+        if (nxt.type is TT.IDENT and nxt.value.upper() == "PERMISSION"
+                and nxt2.type is TT.IDENT and nxt2.value.upper() == "TO"):
+            return self._parse_declare_permission(d)
+        # --- end permission manifests ---
         name = self._expect(TT.IDENT, "a name to declare").value
         self._expect(TT.AS)
         items = [self._parse_expr()]
@@ -272,6 +279,71 @@ class Parser:
         else:
             value = A.ListLiteral(items=items, line=items[0].line, col=items[0].col)
         return A.Declare(name=name, value=value, line=d.line, col=d.col)
+
+    def _parse_declare_permission(self, d) -> A.DeclarePermission:
+        """Parse DECLARE PERMISSION TO <power> -- the permission manifest."""
+        self._advance()  # the word PERMISSION
+        self._advance()  # the word TO
+        line, col = d.line, d.col
+
+        def word_is(text: str) -> bool:
+            t = self._peek()
+            return t.type is TT.IDENT and t.value.upper() == text
+
+        def eat_word(text: str) -> None:
+            t = self._peek()
+            if not (t.type is TT.IDENT and t.value.upper() == text):
+                raise ParseError(
+                    f"DECLARE PERMISSION TO expects the word {text} here, "
+                    f"as in DECLARE PERMISSION TO {text} ...",
+                    line=t.line, col=t.col,
+                )
+            self._advance()
+
+        def eat_string(what: str) -> str:
+            return self._expect(TT.STRING, what).value
+
+        if word_is("READ"):
+            self._advance()
+            return A.DeclarePermission(
+                power="read",
+                target=eat_string('a path in quotes, as in DECLARE PERMISSION TO READ "data/"'),
+                line=line, col=col,
+            )
+        if word_is("WRITE"):
+            self._advance()
+            return A.DeclarePermission(
+                power="write",
+                target=eat_string('a path in quotes, as in DECLARE PERMISSION TO WRITE "out/"'),
+                line=line, col=col,
+            )
+        if word_is("SPEAK"):
+            self._advance()
+            eat_word("WITH")
+            return A.DeclarePermission(
+                power="network",
+                target=eat_string('a host in quotes, as in DECLARE PERMISSION TO SPEAK WITH "api.example.com"'),
+                line=line, col=col,
+            )
+        if word_is("ASK"):
+            self._advance()
+            eat_word("THE")
+            eat_word("WORLD")
+            return A.DeclarePermission(power="stdin", target=None, line=line, col=col)
+        if word_is("SUMMON"):
+            self._advance()
+            return A.DeclarePermission(
+                power="summon",
+                target=eat_string('a verb name in quotes, as in DECLARE PERMISSION TO SUMMON "reports.weekly"'),
+                line=line, col=col,
+            )
+        t = self._peek()
+        raise ParseError(
+            "DECLARE PERMISSION TO grants one power: READ a path, WRITE a "
+            "path, SPEAK WITH a host, ASK THE WORLD, or SUMMON a verb. "
+            f"I heard '{t.value}'.",
+            line=t.line, col=t.col,
+        )
 
     def _parse_breathe(self) -> A.Breathe:
         b = self._expect(TT.BREATHE)

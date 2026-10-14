@@ -127,6 +127,7 @@ def _cmd_run_sandboxed(args: argparse.Namespace) -> int:
         error = None
         output: list[str] = []
         intents: list[dict] = []
+        interp = None
         start = _time.perf_counter()
         with contextlib.redirect_stdout(io.StringIO()):
             try:
@@ -137,9 +138,11 @@ def _cmd_run_sandboxed(args: argparse.Namespace) -> int:
                 error = agentics.diagnostic(err)
                 error["trace"] = agentics.error_trace(err)
         ms = int((_time.perf_counter() - start) * 1000)
+        manifest = getattr(interp, "manifest", None)
         agentics.emit(agentics.run_payload(
             args.file, error is None, output, [], error, ms,
-            intents=intents))
+            intents=intents,
+            permissions=manifest.to_json() if manifest else {}))
         return 0 if error is None else 1
     try:
         run_sandboxed(source, policy, source_name=args.file)
@@ -424,6 +427,19 @@ class CanonicalFormatter:
 
     def _stmt_DeclareIntent(self, node) -> None:  # v4.0
         self._line(f'DECLARE INTENT "{_escape(node.text)}" ON {node.rite}')
+
+    def _stmt_DeclarePermission(self, node) -> None:
+        power = node.power.upper()
+        if power == "READ":
+            self._line(f'DECLARE PERMISSION TO READ "{_escape(node.target)}"')
+        elif power == "WRITE":
+            self._line(f'DECLARE PERMISSION TO WRITE "{_escape(node.target)}"')
+        elif power == "NETWORK":
+            self._line(f'DECLARE PERMISSION TO SPEAK WITH "{_escape(node.target)}"')
+        elif power == "STDIN":
+            self._line("DECLARE PERMISSION TO ASK THE WORLD")
+        elif power == "SUMMON":
+            self._line(f'DECLARE PERMISSION TO SUMMON "{_escape(node.target)}"')
 
     def _stmt_Breathe(self, node) -> None:
         self._line(f"BREATHE LIFE INTO {node.name}")
@@ -813,6 +829,55 @@ def cmd_dap(args: argparse.Namespace) -> int:  # noqa: ARG001
     return serve()
 # --- end v5.0: dap commands ---
 
+# --- permission manifests: `godcode permissions` ---
+def cmd_permissions(args: argparse.Namespace) -> int:
+    """`godcode permissions scroll.god [--json]`: read the scroll's manifest.
+
+    Parses the scroll and reports what powers it declares. No code runs,
+    so reading a manifest is always safe.
+    """
+    import json as _json
+
+    from godcode.errors import GodCodeError
+    from godcode.permissions import PermissionManifest, collect_manifest
+    from godcode.tongues import parse_source
+
+    try:
+        source = Path(args.file).read_text(encoding="utf-8")
+    except OSError as exc:
+        print(f"godcode: cannot read '{args.file}': {exc.strerror or exc}",
+              file=sys.stderr)
+        return 1
+    try:
+        program = parse_source(source)
+    except GodCodeError as err:
+        if getattr(args, "json", False):
+            print(_json.dumps({"tool": "godcode", "command": "permissions",
+                               "file": args.file, "ok": False,
+                               "error": str(err)}, ensure_ascii=False))
+        else:
+            print(f"godcode: the scroll could not be read: {err}",
+                  file=sys.stderr)
+        return 1
+    base_dir = Path(args.file).resolve().parent
+    manifest: PermissionManifest = collect_manifest(program.statements, base_dir)
+    if getattr(args, "json", False):
+        print(_json.dumps({"tool": "godcode", "command": "permissions",
+                           "file": args.file, "ok": True,
+                           "manifest": manifest.to_json()},
+                          ensure_ascii=False))
+        return 0
+    lines = manifest.describe()
+    if not lines:
+        print(f"{args.file} declares no permissions. It may touch nothing "
+              "of the outer world.")
+    else:
+        print(f"The scroll {args.file} declares:")
+        for grant in lines:
+            print(f"  - it {grant}")
+    return 0
+# --- end permission manifests ---
+
 # --- v4.0: intent command ---
 def cmd_intent(args: argparse.Namespace) -> int:
     """`godcode intent "some words" [--json]`: resolve intent via the Spirit."""
@@ -968,6 +1033,15 @@ def build_parser() -> argparse.ArgumentParser:
     p_intent.add_argument("--json", action="store_true",
                           help="Emit a machine-readable JSON report on stdout")
     p_intent.set_defaults(func=cmd_intent)
+
+    p_permissions = sub.add_parser("permissions",
+                                   help="Read a scroll's permission manifest "
+                                        "without running it")
+    p_permissions.add_argument("file", help="The .god scroll to read")
+    p_permissions.add_argument("--json", action="store_true",
+                               help="Emit a machine-readable JSON report "
+                                    "on stdout")
+    p_permissions.set_defaults(func=cmd_permissions)
 
     p_tools = sub.add_parser("tools",
                              help="Show the MCP-compatible agent tool schemas")

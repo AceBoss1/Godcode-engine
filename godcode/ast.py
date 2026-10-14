@@ -53,6 +53,19 @@ class DeclareIntent:
 
 
 @dataclass
+class DeclarePermission:
+    """DECLARE PERMISSION TO <power> -- the permission manifest.
+
+    ``power`` is one of "read", "write", "network", "stdin", "summon";
+    ``target`` is the granted path, host, or verb name (None for stdin).
+    """
+    power: str
+    target: str | None
+    line: int = 1
+    col: int = 1
+
+
+@dataclass
 class Breathe:
     name: str
     line: int = 1

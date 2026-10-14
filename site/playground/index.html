@@ -443,6 +443,40 @@ class Parser{
       const rite=this.expect("IDENT","a rite name").value;
       return {kind:"DeclareIntent", text, rite, line:t.line};
     }
+    // Permission manifests: DECLARE PERMISSION TO <power>. The browser
+    // playground holds no outer-world powers, so the manifest is parsed
+    // and recorded, keeping scrolls portable with the engine.
+    const nxt2b=this.peek2();
+    if(nxt.type==="IDENT"&&nxt.value.toUpperCase()==="PERMISSION"
+       &&nxt2b.type==="IDENT"&&nxt2b.value.toUpperCase()==="TO"){
+      this.next(); this.next();                               // PERMISSION TO
+      const soft=()=>this.peek().type==="IDENT"
+        ? this.peek().value.toUpperCase() : "";
+      const eatSoft=(w)=>{ const q=this.peek();
+        if(q.type!=="IDENT"||q.value.toUpperCase()!==w)
+          throw new GodError("DECLARE PERMISSION TO expects the word "+w+" here.",q.line);
+        this.next(); };
+      const pw=soft();
+      if(pw==="READ"||pw==="WRITE"||pw==="SUMMON"){
+        this.next();
+        const target=this.expect("STRING","a path in quotes").value;
+        return {kind:"DeclarePermission",
+          power:pw==="READ"?"read":pw==="WRITE"?"write":"summon",
+          target, line:t.line};
+      }
+      if(pw==="SPEAK"){
+        this.next(); eatSoft("WITH");
+        const target=this.expect("STRING","a host in quotes").value;
+        return {kind:"DeclarePermission", power:"network", target, line:t.line};
+      }
+      if(pw==="ASK"){
+        this.next(); eatSoft("THE"); eatSoft("WORLD");
+        return {kind:"DeclarePermission", power:"stdin", target:null, line:t.line};
+      }
+      const bad=this.peek();
+      throw new GodError("DECLARE PERMISSION TO grants one power: READ a path, WRITE a path, "+
+        "SPEAK WITH a host, ASK THE WORLD, or SUMMON a verb. I heard '"+bad.value+"'.",bad.line);
+    }
     const nm=this.expect("IDENT","a name");
     this.expect("AS","AS");
     const items=[this.parseExpr()];
@@ -961,6 +995,11 @@ class Interpreter{
       case "DeclareIntent":
         this.intents[n.rite]=n.text;
         this.print('[INTENT] '+n.rite+' now carries the intent: "'+n.text+'" 🕊');
+        break;
+      case "DeclarePermission":
+        // The browser holds no outer-world powers; the manifest is
+        // recorded so the scroll stays portable with the engine.
+        (this.manifest=this.manifest||[]).push({power:n.power,target:n.target});
         break;
       case "Breathe": {
         const v=this.mustBeBound(env,n.name,"breathe into",n.line);

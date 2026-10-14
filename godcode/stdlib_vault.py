@@ -155,13 +155,46 @@ def _check_read_grant(interp, rite: str, path: str, line) -> None:
     resolved = os.path.realpath(path)
     for base in allowed:
         base_resolved = os.path.realpath(base)
+        # A grant on the filesystem root blesses everything, as in a
+        # plain `godcode run` with no guard installed.
+        if base_resolved == os.path.realpath(os.sep):
+            _check_manifest_path(interp, "read", rite, path, line)
+            return
         if resolved == base_resolved or resolved.startswith(base_resolved + os.sep):
+            _check_manifest_path(interp, "read", rite, path, line)
             return
     raise SandboxViolation(
         f"The sandbox withholds this power: the rite {rite} may not read "
         f"'{path}'. It lies outside the granted paths.",
         line,
     )
+
+
+def _check_manifest_path(interp, kind: str, rite: str, path: str, line) -> None:
+    """Refuse filesystem access the scroll's permission manifest withholds.
+
+    The guard's own ``check_rite`` already polices the call through the
+    interpreter's dispatch; the vault reaches the filesystem directly, so
+    it applies the manifest's target rule here as well.
+    """
+    manifest = getattr(interp, "manifest", None)
+    if not manifest:
+        return
+    # The manifest holds absolute prefixes; realpath() resolves the
+    # runtime target exactly the way open() will, so the check mirrors
+    # the file the rite is about to touch.
+    allowed = (
+        manifest.allows_read(path) if kind == "read"
+        else manifest.allows_write(path)
+    )
+    if not allowed:
+        raise SandboxViolation(
+            f"The scroll reaches for a power it did not declare: the rite "
+            f"{rite} may not touch '{path}'. Declare it at the top of the "
+            f"scroll with DECLARE PERMISSION TO, or leave the power "
+            f"untouched.",
+            line,
+        )
 
 
 def _check_write_grant(interp, path: str, line) -> None:
@@ -175,6 +208,7 @@ def _check_write_grant(interp, path: str, line) -> None:
             f"write '{path}' to the outer world. It is not granted.",
             line,
         )
+    _check_manifest_path(interp, "write", "WRITE_FILE", path, line)
 
 
 # ------------------------------------------------------------------ register

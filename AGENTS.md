@@ -106,20 +106,40 @@ Demo in sandbox mode.
 
 ## Agent tool bridge
 
-Six MCP-compatible tool schemas for agent frameworks, plus a JSON-RPC
+Seven MCP-compatible tool schemas for agent frameworks, plus a JSON-RPC
 bridge over stdio:
 
 ```bash
-godcode tools --json     # check, run, consult, intent, anchor_verify, ledger_verify
+godcode tools --json     # check, run, consult, intent, anchor_verify, ledger_verify, permissions
 godcode bridge           # serve the tools to an agent host over stdio
 godcode intent "words"   # resolve the intent behind words with the Spirit
 godcode ledger verify    # attest the covenant chain AND the anchor chain
+godcode permissions scroll.god   # read a scroll's permission manifest (runs nothing)
 ```
 
 `run --json` reports now carry an `intents` array: one entry per invoked
 rite carrying a `DECLARE INTENT`, with `declared`, `discerned`,
 `confidence`, and `aligned`. Declare the intent of generated rites and
-check `intents` for drift after each run.
+check `intents` for drift after each run. They also carry a
+`permissions` block: the run's permission manifest.
+
+## Permission manifests
+
+Generated scrolls should declare what they may touch, at the top of
+the scroll:
+
+```
+DECLARE PERMISSION TO READ "data/"
+DECLARE PERMISSION TO WRITE "out/"
+DECLARE PERMISSION TO SPEAK WITH "api.example.com"
+DECLARE PERMISSION TO ASK THE WORLD
+DECLARE PERMISSION TO SUMMON "reports.weekly"
+```
+
+Any rite that reaches for an undeclared power is stopped. The manifest
+never widens the host policy: `--sandbox` still narrows everything.
+Read a scroll's manifest safely with `godcode permissions --json`
+before running it.
 
 ## House rules for agents working on God Code
 

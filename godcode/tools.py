@@ -106,6 +106,22 @@ TOOL_SCHEMAS: list[dict] = [
             "required": [],
         },
     },
+    {
+        "name": "permissions",
+        "description": (
+            "Read a God Code scroll's permission manifest without running "
+            "it. Returns the declared powers: file reads, file writes, "
+            "network hosts, outer-world speech (ASK), and summoned verbs."
+        ),
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "file": {"type": "string",
+                         "description": "Path to the .god scroll"},
+            },
+            "required": ["file"],
+        },
+    },
 ]
 
 _TOOLS_BY_NAME = {t["name"]: t for t in TOOL_SCHEMAS}
@@ -145,13 +161,16 @@ def tool_run(arguments: dict) -> dict:
     except OSError as exc:
         return {"ok": False, "error": f"cannot read '{file}': {exc.strerror or exc}"}
     if sandbox:
-        from godcode.sandbox import run_sandboxed
+        from godcode.sandbox import run_sandboxed_with_interpreter
 
         try:
-            output = run_sandboxed(source, source_name=file)
+            output, interp = run_sandboxed_with_interpreter(
+                source, source_name=file)
         except GodCodeError as err:
             return {"ok": False, "output": [], "error": str(err)}
-        return {"ok": True, "output": output, "error": None}
+        manifest = getattr(interp, "manifest", None)
+        return {"ok": True, "output": output, "error": None,
+                "permissions": manifest.to_json() if manifest else {}}
     from godcode.cli import _make_interpreter
     import contextlib
     import io
@@ -165,7 +184,9 @@ def tool_run(arguments: dict) -> dict:
         return {"ok": False,
                 "output": buf.getvalue().splitlines(),
                 "error": str(err)}
-    return {"ok": True, "output": buf.getvalue().splitlines(), "error": None}
+    manifest = getattr(interp, "manifest", None)
+    return {"ok": True, "output": buf.getvalue().splitlines(), "error": None,
+            "permissions": manifest.to_json() if manifest else {}}
 
 
 def tool_consult(arguments: dict) -> dict:
@@ -214,6 +235,30 @@ def tool_anchor_verify(arguments: dict) -> dict:
     }
 
 
+def tool_permissions(arguments: dict) -> dict:
+    """Read a scroll's permission manifest without running it."""
+    from godcode.errors import GodCodeError
+    from godcode.permissions import collect_manifest
+    from godcode.tongues import parse_source
+
+    file = arguments.get("file")
+    if not isinstance(file, str):
+        return {"ok": False,
+                "error": "permissions needs 'file' as a string path"}
+    try:
+        source = Path(file).read_text(encoding="utf-8")
+    except OSError as exc:
+        return {"ok": False,
+                "error": f"cannot read '{file}': {exc.strerror or exc}"}
+    try:
+        program = parse_source(source)
+    except GodCodeError as err:
+        return {"ok": False, "error": str(err)}
+    manifest = collect_manifest(
+        program.statements, Path(file).resolve().parent)
+    return {"ok": True, "permissions": manifest.to_json()}
+
+
 def tool_ledger_verify(arguments: dict) -> dict:
     from godcode.chain import SimulatedChainAdapter
     from godcode.ledger import CovenantLedger
@@ -236,6 +281,7 @@ _TOOL_FUNCS = {
     "intent": tool_intent,
     "anchor_verify": tool_anchor_verify,
     "ledger_verify": tool_ledger_verify,
+    "permissions": tool_permissions,
 }
 
 

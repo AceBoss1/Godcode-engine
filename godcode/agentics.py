@@ -147,7 +147,8 @@ def check_payload(file: str, ok: bool, diagnostics: list[dict]) -> dict:
 
 def run_payload(file: str, ok: bool, output: list[str],
                 seals: list[dict], error: dict | None, ms: int,
-                intents: list[dict] | None = None) -> dict:
+                intents: list[dict] | None = None,
+                permissions: dict | None = None) -> dict:
     return {
         "tool": TOOL_NAME,
         "command": "run",
@@ -156,6 +157,7 @@ def run_payload(file: str, ok: bool, output: list[str],
         "output": output,
         "seals": seals,
         "intents": intents if intents is not None else [],
+        "permissions": permissions if permissions is not None else {},
         "error": error,
         "stats": {"ms": ms},
     }
@@ -245,6 +247,8 @@ def cmd_run_json(args) -> int:
     output = buf.getvalue().splitlines()
     seals = _new_seals(interp, seals_before)
     intents = list(getattr(interp, "intent_checks", []) or [])
+    manifest = getattr(interp, "manifest", None)
     emit(run_payload(args.file, error is None, output, seals, error, ms,
-                     intents=intents))
+                     intents=intents,
+                     permissions=manifest.to_json() if manifest else {}))
     return 0 if error is None else 1

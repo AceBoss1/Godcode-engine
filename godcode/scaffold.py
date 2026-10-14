@@ -49,6 +49,9 @@ def _main_god(name: str) -> str:
 # {name}, a newborn scroll.
 # Run it with: godcode run main.god
 # Test it with: godcode test .
+# Declare the powers your scroll may touch (uncomment what it needs):
+# DECLARE PERMISSION TO READ "data/"
+# DECLARE PERMISSION TO WRITE "out/"
 
 BEGIN CREATION
 

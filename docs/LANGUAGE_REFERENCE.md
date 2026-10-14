@@ -753,7 +753,7 @@ godcode run --sandbox examples/sandbox_safe.god
 godcode run --sandbox --sandbox-timeout 5 examples/sandbox_safe.god
 ```
 
-Pure creations — numbers, cycles, revelation — pass through in peace; anything reaching for the world outside is refused with a clear, line-numbered message. Full policy detail lives in [`docs/sandbox.md`](sandbox.md).
+Pure creations — numbers, cycles, revelation — pass through in peace; anything reaching for the world outside is refused with a clear, line-numbered message. Full policy detail lives in [`docs/sandbox.md`](sandbox.md). A scroll may also declare its own boundary with a permission manifest (see §30); the manifest never widens what the host policy allows.
 
 ## 24. The Language Server
 
@@ -847,19 +847,20 @@ must be a string. See `examples/consult_demo.god`.
 
 ## 28. The Agent Tool Bridge
 
-God Code speaks the language agents speak. `godcode tools [--json]` prints six
+God Code speaks the language agents speak. `godcode tools [--json]` prints seven
 **MCP-compatible tool schemas** — `check`, `run`, `consult`, `intent`,
-`anchor_verify`, `ledger_verify`, ready to paste into any agent
+`anchor_verify`, `ledger_verify`, `permissions`, ready to paste into any agent
 framework that speaks the Model Context Protocol:
 
 | Tool | Does |
 |---|---|
 | `check` | validate a scroll; returns `{ok, diagnostics}` |
-| `run` | execute a scroll in the sandbox; returns `{ok, output, seals, intents, error}` |
+| `run` | execute a scroll in the sandbox; returns `{ok, output, seals, intents, permissions, error}` |
 | `consult` | ask the Spirit oracle a question; returns `{ok, counsel}` |
 | `intent` | resolve the intent behind words; returns `{ok, result}` |
 | `anchor_verify` | verify an anchor receipt against the chain; returns `{ok, valid, message}` |
 | `ledger_verify` | verify both the covenant chain and the anchor chain |
+| `permissions` | read a scroll's permission manifest without running it |
 
 `godcode bridge` serves the same tools as a **JSON-RPC 2.0 server over
 stdio** (`initialize`, `ping`, `tools/list`, `tools/call`), so an agent
@@ -941,6 +942,33 @@ no ledger, no sandbox — so only test scrolls you wrote or trust.
 File-level failures appear as entries with `"rite": "(scroll)"`.
 Scrolls that hold no `TEST_` rites are noted in the text report only
 (`test_empty.god :: no TEST_ rites found.`) and do not fail the run.
+
+---
+
+## 30. Permission Manifests
+
+A scroll declares what it may touch, at the top of the scroll:
+
+```
+DECLARE PERMISSION TO READ "data/"
+DECLARE PERMISSION TO WRITE "out/"
+DECLARE PERMISSION TO SPEAK WITH "api.example.com"
+DECLARE PERMISSION TO ASK THE WORLD
+DECLARE PERMISSION TO SUMMON "reports.weekly"
+```
+
+Any rite that reaches for a power the scroll did not declare is
+counselled and stopped. The manifest never widens what the host
+allows: the effective grant is always host policy intersect manifest.
+`READ` polices `READ_FILE`, `LIST_DIR`, `FILE_EXISTS`; `WRITE`
+polices `WRITE_FILE`; `SPEAK WITH` names a host (and its subdomains)
+for `HTTP_GET`; `ASK THE WORLD` grants the `ASK` rite; `SUMMON`
+names the plugin verbs that may be called upon. Imported scrolls
+contribute their own manifests; grants compose by union.
+
+`godcode permissions scroll.god [--json]` reads the manifest without
+running any code. `godcode run --json` reports the run's manifest
+under `permissions`. Full semantics live in `docs/spec/permissions.md`.
 
 ---
 

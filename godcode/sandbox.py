@@ -119,6 +119,27 @@ class SandboxPolicy:
             timeout_seconds=timeout_seconds,
         )
 
+    @classmethod
+    def open(cls) -> "SandboxPolicy":
+        """The permissive host policy used under a permission manifest.
+
+        A plain `godcode run` of a scroll without --sandbox has always run
+        unbound; installing the guard with the open policy preserves that
+        while letting the scroll's own permission manifest do the
+        narrowing. No step budget, no time grant, every power allowed —
+        the manifest alone withholds.
+        """
+        return cls(
+            allow_read_paths=(os.sep,),
+            allow_write=True,
+            allow_network=True,
+            allow_subprocess=True,
+            allow_stdin=True,
+            allowed_import_paths=(os.sep,),
+            timeout_seconds=None,
+            max_steps=10**15,
+        )
+
 
 # ---------------------------------------------------------------------------
 # The guard
@@ -167,6 +188,11 @@ class Sandbox:
         self._allowed_import_dirs = [
             os.path.realpath(p) for p in policy.allowed_import_paths
         ]
+        # The open policy blesses the whole filesystem: every import path
+        # is consecrated, as in a plain `godcode run` with no guard.
+        self._import_open = any(
+            d == os.path.realpath(os.sep) for d in self._allowed_import_dirs
+        )
 
     # -- installation ---------------------------------------------------
 
@@ -207,7 +233,7 @@ class Sandbox:
             return eval_expr
         if name == "_call":
             def call(rite_name, args, env, line):
-                self.check_rite(rite_name, line)
+                self.check_rite(rite_name, line, tuple(args or ()))
                 return original(rite_name, args, env, line)
             return call
         if name == "_exec_import":
@@ -244,8 +270,13 @@ class Sandbox:
                     self.current_line,
                 )
 
-    def check_rite(self, name: str, line: int | None) -> None:
-        """Refuse side-effecting rites the policy does not grant."""
+    def check_rite(self, name: str, line: int | None, args: tuple = ()) -> None:
+        """Refuse side-effecting rites the policy does not grant.
+
+        The host policy is consulted first; then the scroll's own
+        permission manifest (when the scroll declared one) narrows the
+        grant to the declared targets. The manifest never widens the host.
+        """
         need = _SIDE_EFFECT_RITES.get(str(name).upper())
         if need is not None and not getattr(self.policy, need, False):
             divine = {
@@ -261,11 +292,54 @@ class Sandbox:
                 "It is not granted.",
                 line,
             )
+        self._check_manifest(name, line, args)
+
+    def _check_manifest(self, name: str, line: int | None, args: tuple) -> None:
+        """Enforce the scroll's declared permission manifest, if any.
+
+        The guard reads the manifest live from the interpreter so that
+        imported scrolls may widen the run's grants by declaring their
+        own (grants compose by union; the host policy still narrows).
+        """
+        manifest = getattr(self.interpreter, "manifest", None)
+        if not manifest:
+            return
+        rite = str(name).upper()
+        target = args[0] if args else None
+        # Runtime file targets resolve exactly the way the builtins open
+        # them: relative to the invocation directory. realpath() on the
+        # raw target mirrors that, so the check can never be talked into
+        # blessing a different file than the rite will touch.
+
+        def withheld(counsel: str) -> SandboxViolation:
+            return SandboxViolation(
+                f"The scroll reaches for a power it did not declare: {counsel} "
+                "Declare it at the top of the scroll with DECLARE PERMISSION "
+                "TO, or leave the power untouched.",
+                line,
+            )
+
+        if rite == "ASK" and not manifest.stdin:
+            raise withheld("ASK would speak with the outer world")
+        if rite == "WRITE_FILE":
+            if not (isinstance(target, str) and manifest.allows_write(target)):
+                raise withheld(f"WRITE_FILE would write '{target}'")
+        if rite in ("READ_FILE", "LIST_DIR", "FILE_EXISTS"):
+            if not (isinstance(target, str) and manifest.allows_read(target)):
+                raise withheld(f"{rite} would read '{target}'")
+        if rite == "HTTP_GET":
+            if not (isinstance(target, str) and manifest.allows_host(target)):
+                raise withheld(f"HTTP_GET would reach '{target}'")
+        if rite == "SUMMON":
+            if not (isinstance(target, str) and manifest.allows_summon(target)):
+                raise withheld(f"SUMMON would call upon '{target}'")
 
     def check_import_path(
         self, path: Path, requested: str, line: int | None
     ) -> None:
         """Refuse scrolls outside the consecrated import paths."""
+        if self._import_open:
+            return
         resolved = os.path.realpath(path)
         for allowed in self._allowed_import_dirs:
             if resolved == allowed or resolved.startswith(allowed + os.sep):

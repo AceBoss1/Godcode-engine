@@ -26,6 +26,7 @@ from godcode.ast import (
     CreationBlock,
     Declare,
     DeclareIntent,
+    DeclarePermission,
     DefineRite,
     ExprStmt,
     ForLoop,
@@ -95,6 +96,13 @@ class Interpreter:
         # powers the "Called by ..." trace for uncaught errors and is
         # separate from the debugger's own frame list (which only exists
         # while a DebugSession is attached).
+        # --- permission manifests ---
+        # The scroll's declared powers, collected in run() before execution
+        # and widened by union as imported scrolls declare their own. The
+        # sandbox guard (when installed) enforces it against every rite.
+        from godcode.permissions import PermissionManifest
+        self.manifest: PermissionManifest = PermissionManifest()
+        # --- end permission manifests ---
         self.call_stack: list[dict] = []
         # --- end v5.2 ---
         self._plugin_verbs: dict[str, Callable[..., Any]] = {}  # namespaced verbs from plugins
@@ -188,6 +196,14 @@ class Interpreter:
         self.call_stack = []  # fresh trace for every run
         if self._looks_like_file(source_name):
             self.source_dir = Path(source_name).resolve().parent
+        # --- permission manifests ---
+        # Gather the scroll's declared powers before anything runs, then
+        # bind the guard so every rite is measured against them.
+        from godcode.permissions import PermissionManifest, collect_manifest
+        self.manifest = collect_manifest(
+            self._statements_of(program), self.source_dir)
+        self._bind_manifest_guard()
+        # --- end permission manifests ---
         self._open_log()
         try:
             self._log(f"SESSION BEGIN {source_name} {self._now()}")
@@ -220,6 +236,22 @@ class Interpreter:
             return Path(source_name).is_file()
         except (OSError, ValueError):
             return False
+
+    # --- permission manifests ---
+
+    def _bind_manifest_guard(self) -> None:
+        """Install the guard under the open host policy when a manifest
+        is declared and no guard is installed yet (the --sandbox path
+        installs its own strict guard, which then also sees the manifest).
+        """
+        if not self.manifest:
+            return
+        if getattr(self, "_sandbox_guard", None) is not None:
+            return
+        from godcode.sandbox import SandboxPolicy, apply_policy
+        apply_policy(self, SandboxPolicy.open())
+
+    # --- end permission manifests ---
 
     # ------------------------------------------------------------- statements
 
@@ -260,6 +292,8 @@ class Interpreter:
             env.define(stmt.name, self._eval_expr(stmt.value, env))
         elif isinstance(stmt, DeclareIntent):
             self._exec_declare_intent(stmt)
+        elif isinstance(stmt, DeclarePermission):
+            pass  # the manifest was gathered before the run; nothing to do
         elif isinstance(stmt, Breathe):
             self._exec_breathe(stmt, env)
         elif isinstance(stmt, Reveal):
@@ -528,6 +562,13 @@ class Interpreter:
             self._last_source = source
             program = parse_source(source)
             self._log(f"IMPORT :: {path}")
+            # Permission manifests compose by union: an imported scroll may
+            # grant powers the importing scroll did not declare.
+            from godcode.permissions import collect_manifest
+            self.manifest = self.manifest.merge(
+                collect_manifest(self._statements_of(program), self.source_dir)
+            )
+            self._bind_manifest_guard()
             self._exec_block(self._statements_of(program), env)
         finally:
             if self.debugger is not None:

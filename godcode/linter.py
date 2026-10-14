@@ -301,6 +301,10 @@ class _Linter:
         # Names a rite's purpose; marks the rite used but never flags GC002.
         self._ref(scope, node.rite, node.line, node.col, kind="intent")
 
+    def _stmt_DeclarePermission(self, node, scope: _Scope) -> None:  # noqa: ARG002
+        # A permission manifest declares powers, not names; nothing to lint.
+        pass
+
     def _stmt_Breathe(self, node, scope: _Scope) -> None:
         self._ref(scope, node.name, node.line, node.col)
 
