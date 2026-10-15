@@ -160,6 +160,136 @@ _ZU_SNIPPETS = (
      "Shelter a fragile work"),
 )
 
+def _with_plain_spellings(table: dict) -> dict:
+    """Add each word's spelling without tone and dot marks (Ọ -> O, Ụ -> U).
+
+    Igbo is written with dotted vowels, but many keyboards cannot type
+    them, so ``GOSIPỤTA`` and ``GOSIPUTA`` both speak. Keys may be single
+    words or two-word pairs.
+    """
+    import unicodedata
+
+    def plain(word: str) -> str:
+        decomposed = unicodedata.normalize("NFD", word)
+        return "".join(ch for ch in decomposed if not unicodedata.combining(ch))
+
+    out = dict(table)
+    for key, canon in table.items():
+        bare = tuple(plain(w) for w in key) if isinstance(key, tuple) else plain(key)
+        out.setdefault(bare, canon)
+    return out
+
+
+# Igbo (ig) word -> canonical English keyword name. First edition: native
+# speakers are its rightful editors (see docs/TONGUES.md).
+_IG_ALIASES = _with_plain_spellings({
+    "MALITE": "BEGIN",        # begin, start
+    "OKIKE": "CREATION",      # creation (Chukwu Okike, God the Creator)
+    "NJEDEBE": "END",         # the end
+    "KWUPỤTA": "DECLARE",     # speak out, proclaim
+    "DỊKA": "AS",             # like, as
+    "KUO": "BREATHE",         # blow (breath)
+    "NDỤ": "LIFE",            # life
+    "BANYE": "INTO",          # go into, enter
+    "GOSIPỤTA": "REVEAL",     # show forth, reveal
+    "AMỤMA": "PROPHESY",      # prophecy
+    "RỊGOO": "ASCEND",        # go up
+    "MA": "IF",               # if, whether
+    "MGBE": "THEN",           # then, at that time (also MGBE AHỤ)
+    "NWAA": "TRY",            # try
+    "JIDE": "CATCH",          # hold, catch
+    "KỌWAA": "DEFINE",        # explain, define
+    "EMUME": "RITE",          # a ceremony, a rite
+    "KPỌỌ": "INVOKE",         # call
+    "WEGHACHI": "RETURN",     # bring back
+    "WEBATA": "IMPORT",       # bring in
+    "BỤ": "IS",               # is
+    "MBA": "NOT",             # no, not
+    "NA": "AND",              # and
+    "MAỌBỤ": "OR",            # or
+    "IME": "IN",              # inside, in
+    "MEE": "DO",              # do
+    "TỤGHARỊA": "REFLECT",    # turn over in the mind, reflect
+    "GỌỌZIE": "BLESS",        # bless
+    "TEE": "ANOINT",          # rub on (te mmanụ: anoint with oil)
+    "MECHIE": "SEAL",         # close (a seal closes the covenant)
+    "AKAEBE": "TESTIFY",      # testimony, witness
+    "EZIOKWU": "TRUE",        # the truth
+    "ỤGHA": "FALSE",          # a lie
+    "EFU": "VOID",            # empty, nothing
+    "KWỤSỊ": "BREAK",         # stop
+    "NỌGIDE": "CONTINUE",     # keep on, continue
+})
+
+# Two-word phrases: closers, plus the natural Igbo "Ọ bụrụ" (if) and
+# "mgbe ahụ" (then).
+_IG_COMPOUNDS = _with_plain_spellings({
+    ("NJEDEBE", "MA"): "ENDIF",
+    ("NJEDEBE", "NWAA"): "ENDTRY",
+    ("Ọ", "BỤRỤ"): "IF",
+    ("MGBE", "AHỤ"): "THEN",
+})
+
+_IG_SNIPPETS = (
+    ("MALITE OKIKE … NJEDEBE OKIKE",
+     "MALITE OKIKE\\n\\t$0\\nNJEDEBE OKIKE",
+     "Open a new scroll"),
+    ("Ọ BỤRỤ … MGBE AHỤ … NJEDEBE MA",
+     "Ọ BỤRỤ ${1:condition} MGBE AHỤ\\n\\t$0\\nNJEDEBE MA",
+     "Weigh a condition"),
+    ("NWAA … JIDE … NJEDEBE NWAA",
+     "NWAA\\n\\t${1:works}\\nJIDE\\n\\t${2:refuge}$0\\nNJEDEBE NWAA",
+     "Shelter a fragile work"),
+)
+
+# Nigerian Pidgin (pg) word -> canonical English keyword name. Pidgin
+# shares many words with English (IF, TRY, AND, IN, DO, BLESS, LIFE,
+# TRUE, FALSE, RETURN, PROPHESY), so those simply stay as they are.
+_PG_ALIASES = {
+    "OYA": "BEGIN",           # come on, let's go
+    "KREASHON": "CREATION",   # creation
+    "FINISH": "END",          # finish
+    "TALK": "DECLARE",        # say it
+    "BE": "AS",               # be
+    "BLOW": "BREATHE",        # blow (breath)
+    "INSIDE": "INTO",         # inside
+    "SHOW": "REVEAL",         # show
+    "COMOT": "ASCEND",        # leave, go out (in peace)
+    "DEN": "THEN",            # then
+    "HOLD": "CATCH",          # hold am
+    "ARRANGE": "DEFINE",      # arrange, set up
+    "JOB": "RITE",            # a job of work
+    "CALL": "INVOKE",         # call
+    "CARRY": "IMPORT",        # carry come, bring
+    "NA": "IS",               # na im: it is
+    "NO": "NOT",              # no
+    "ABI": "OR",              # or
+    "REASON": "REFLECT",      # reason am: think it over
+    "ROB": "ANOINT",          # rub on (rob mmanu)
+    "LOCK": "SEAL",           # lock
+    "WITNESS": "TESTIFY",     # bear witness
+    "NOTHING": "VOID",        # nothing
+    "STOP": "BREAK",          # stop
+    "MOVE": "CONTINUE",       # move on
+}
+
+_PG_COMPOUNDS = {
+    ("FINISH", "IF"): "ENDIF",
+    ("FINISH", "TRY"): "ENDTRY",
+}
+
+_PG_SNIPPETS = (
+    ("OYA KREASHON … FINISH KREASHON",
+     "OYA KREASHON\\n\\t$0\\nFINISH KREASHON",
+     "Open a new scroll"),
+    ("IF … DEN … FINISH IF",
+     "IF ${1:condition} DEN\\n\\t$0\\nFINISH IF",
+     "Weigh a condition"),
+    ("TRY … HOLD … FINISH TRY",
+     "TRY\\n\\t${1:works}\\nHOLD\\n\\t${2:refuge}$0\\nFINISH TRY",
+     "Shelter a fragile work"),
+)
+
 TONGUES: dict[str, dict] = {
     "tn": {
         "name": "Setswana",
@@ -173,7 +303,23 @@ TONGUES: dict[str, dict] = {
         "compounds": _ZU_COMPOUNDS,
         "snippets": _ZU_SNIPPETS,
     },
+    "ig": {
+        "name": "Igbo",
+        "aliases": _IG_ALIASES,
+        "compounds": _IG_COMPOUNDS,
+        "snippets": _IG_SNIPPETS,
+    },
+    "pg": {
+        "name": "Nigerian Pidgin",
+        "aliases": _PG_ALIASES,
+        "compounds": _PG_COMPOUNDS,
+        "snippets": _PG_SNIPPETS,
+    },
 }
+
+# Other codes a scroll may use for a tongue: ``pcm`` is the standard
+# (ISO 639-3) code for Nigerian Pidgin.
+_CODE_ALIASES = {"pcm": "pg"}
 
 _CANONICAL = {"en": {"name": "English", "aliases": {}, "compounds": {}}}
 
@@ -193,6 +339,7 @@ def resolve(code: str | None) -> dict:
     """Return the tongue table for a code; raises a gentle error if unknown."""
     if code is None or code == "en":
         return _CANONICAL["en"]
+    code = _CODE_ALIASES.get(code, code)
     if code in TONGUES:
         return TONGUES[code]
     from .errors import LexerError
