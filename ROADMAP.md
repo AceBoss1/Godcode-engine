@@ -4,6 +4,16 @@ Where the language is headed, in plain words. This is a living document: it chan
 
 ## Just landed
 
+- The playground runs the real engine. `site/playground/` loads this
+  repository's own interpreter into the browser (Pyodide, in a Web
+  Worker), so the commons, dates, registry scroll imports, `CONSULT`,
+  and the engine's exact errors all work there, sandboxed. The real
+  parser and linter counsel live as you type. The JavaScript
+  interpreter stays as an instant, offline-capable lite engine. After
+  changing `godcode/`, rebuild the bundle with
+  `python3 site/playground/build_engine.py`; `tests/test_webrun.py`
+  fails while it is stale, so the playground cannot drift again.
+
 - Performance benchmarks: published with the method. `python3 bench/bench.py`
   drives the real interpreter over seven workloads (lexing and parsing, deep
   rite recursion, a tight counting loop, string interpolation, list work,

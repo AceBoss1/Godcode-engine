@@ -143,6 +143,10 @@ before running it.
 
 ## House rules for agents working on God Code
 
+- **Rebuild the playground bundle after touching `godcode/`.** The live
+  playground runs the real engine from `site/playground/engine.json`.
+  Run `python3 site/playground/build_engine.py` and commit the result;
+  `tests/test_webrun.py` fails while the bundle is stale.
 - **No version numbers in anything a human reads.** God Code releases by date now, not by numbers. Never write a version label in a commit
   message, a doc, a site page, a README, a changelog header, or a Discord
   announcement. Changelog entries are headed by date. The future is commits,

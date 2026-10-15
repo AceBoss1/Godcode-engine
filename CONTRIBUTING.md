@@ -38,7 +38,8 @@ Every contributor to God Code receives:
 - `examples/`. Twenty-seven `.god` creations: language demonstrations, tongues, the commons, and practical file, sales, REST, and daily reports. Every example uses `godcode run examples/<name>.god` from the repo root; see `examples/README.md` for file and network notes.
 - `tests/`. The pytest suite. `tests/test_examples.py` is the safety net for practical examples and the commons demonstration.
 - `editors/`. VS Code support in `editors/vscode/`: highlighting, snippets, and language-server integration.
-- `playground/`. The web playground.
+- `site/playground/`. The live web playground. It runs the real engine in the browser from `site/playground/engine.json`; after changing anything in `godcode/`, rebuild it with `python3 site/playground/build_engine.py` (the test suite fails while it is stale).
+- `playground/`. The first playground, kept for history.
 - `docs/`. The tutorial and full language reference.
 - `archive/`. The honored original prototype.
 - `logs/`. Per-creation spiritual execution logs (`godcode.log`), generated when you run a scroll and never committed.
