@@ -82,6 +82,26 @@ header .rule{width:64px;height:1px;margin:24px auto 0;background:var(--bronze)}
 .cline.dim{color:#8D8471}
 .cline.err{color:#E08E8E}
 .cline.divine{color:#D9B25F}
+/* the engine badge and live counsel */
+.btn:disabled{opacity:.6;cursor:progress}
+.engine{font-size:13px;padding:6px 12px;border-radius:999px;border:1px solid var(--line);
+  color:var(--ink-faint);background:var(--card);white-space:nowrap;cursor:help}
+.engine.real{color:#3F6B2E;border-color:#B9CBA6}
+.engine.waking{animation:breathe 1.6s ease-in-out infinite}
+@keyframes breathe{50%{opacity:.45}}
+.gutter .mark{display:inline-block;width:100%;border-radius:3px;cursor:help}
+.gutter .mark.error{background:rgba(224,142,142,.22);color:#F0B4B4}
+.gutter .mark.warning{background:rgba(217,178,95,.18);color:#D9B25F}
+.diag{background:var(--code-bg);border-top:1px solid var(--code-line);padding:8px 16px;min-height:38px;
+  max-height:132px;overflow-y:auto;font:12.5px/1.6 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  color:#8D8471}
+.diag.pure{color:#A9BE93}
+.drow{cursor:pointer;white-space:pre-wrap;word-break:break-word}
+.drow.error{color:#E08E8E}
+.drow.warning{color:#D9B25F}
+.drow:hover{text-decoration:underline}
+.cline.src{white-space:pre}
+.cline.hint{color:#C4B78F;font-style:italic}
 /* footer */
 footer{text-align:center;color:var(--ink-faint);font-size:14px;padding:34px 24px 48px}
 footer b{color:var(--ink-soft);font-weight:600}
@@ -131,6 +151,7 @@ footer b{color:var(--ink-soft);font-weight:600}
   <button class="btn btn-run" id="runBtn">Run Creation</button>
   <button class="btn btn-clear" id="clearBtn">Clear</button>
   <button class="btn btn-clear" id="shareBtn">Share</button>
+  <span class="engine waking" id="engineBadge">Waking the real engine…</span>
   <span class="hint">Ctrl+Enter (&#8984;+Enter) runs &middot; Tab inserts two spaces</span>
 </div>
 <div class="layout">
@@ -144,6 +165,7 @@ footer b{color:var(--ink-soft);font-weight:600}
           autocapitalize="off" aria-label="God Code editor"></textarea>
       </div>
     </div>
+    <div class="diag" id="diag" aria-live="polite"></div>
   </section>
   <section class="panel">
     <div class="panel-head">Heavenly Console</div>
@@ -154,10 +176,21 @@ footer b{color:var(--ink-soft);font-weight:600}
 <script>
 "use strict";
 /* ============================================================
-   GOD CODE PLAYGROUND — a compact JS interpreter of the divine
-   language, mirroring the godcode-engine specification (sections 4-6).
-   Sections: 1 Lexer · 2 Parser · 3 Values · 4 Interpreter ·
-             5 Scrolls · 6 Samples · 7 UI
+   GOD CODE PLAYGROUND
+
+   Creations run on the REAL engine: this repository's own Python
+   interpreter, loaded into the browser by engine-worker.js (Pyodide)
+   from engine.json, and sandboxed by the engine's strict policy. The
+   parser and linter counsel live as you type. Rebuild engine.json with
+   python3 site/playground/build_engine.py after changing the engine.
+
+   Sections 1-7b are the LITE engine: a compact JS interpreter of the
+   core language. It answers instantly while the real engine wakes, and
+   stands in when it cannot (offline, or no WebAssembly). It does not
+   know every power of the engine (the commons, dates, registry scrolls).
+   Sections: 1 Lexer · 2 Parser · 3 Values · 4 Built-ins ·
+             5 Interpreter · 6 Scrolls · 7 Samples · 7b Share links ·
+             8 UI (engine bridge, live counsel, autosave)
    ============================================================ */
 
 /* ---------------- 1. LEXER ---------------- */
@@ -176,17 +209,28 @@ const KEYWORDS = new Set((
   "TRY CATCH ENDTRY BREAK CONTINUE " +
   "IS NOT AND OR REFLECT BLESS ANOINT SEAL TESTIFY TRUE FALSE").split(" "));
 
-// Tongues: keyword aliases -> canonical types, plus two-word closers
-// ("FEDISA FA" -> ENDIF in Setswana, "QEDA UMA" -> ENDIF in isiZulu).
-// Chosen per scroll by a `# tongue: tn` or `# tongue: zu` pragma.
+// Tongues: keyword aliases -> canonical types, plus two-word phrases
+// ("FEDISA FA" -> ENDIF in Setswana, "QEDA UMA" -> ENDIF in isiZulu,
+// "FINISH IF" -> ENDIF in Pidgin, "O BURU" -> IF in Igbo). Chosen per
+// scroll by a `# tongue: xx` pragma. The lite engine reads plain letters
+// only, so it knows the Igbo words in their undotted spelling; the real
+// engine reads both.
 const TONGUES={
   tn:{name:"Setswana",
       aliases:{SIMOLOLA:"BEGIN",TLHOLEGO:"CREATION",FEDISA:"END",BOLELA:"DECLARE",JAAKA:"AS",HEMA:"BREATHE",BOTSHELO:"LIFE",TENG:"INTO",SENOLA:"REVEAL",POROFETA:"PROPHESY",TLHATLOGA:"ASCEND",FA:"IF",TLOGA:"THEN",LEKA:"TRY",TSHWARA:"CATCH",TLHALOSA:"DEFINE",TIRO:"RITE",BITSA:"INVOKE",BUSETSA:"RETURN",TSENYA:"IMPORT",KE:"IS",GA:"NOT",LE:"AND",KGOTSA:"OR",MO:"IN",DIRA:"DO",AKANYA:"REFLECT",SEGOFATSA:"BLESS",TLOTSA:"ANOINT",TSWALA:"SEAL",PAKA:"TESTIFY",NNETE:"TRUE",MAAKA:"FALSE",SEPE:"VOID",KGAOLA:"BREAK",TSWELELA:"CONTINUE"},
       compounds:{"FEDISA FA":"ENDIF","FEDISA LEKA":"ENDTRY"}},
   zu:{name:"isiZulu",
       aliases:{QALA:"BEGIN",INDALO:"CREATION",QEDA:"END",MEMEZELA:"DECLARE",NJENGA:"AS",PHEFUMULA:"BREATHE",IMPILO:"LIFE",PHAKATHI:"INTO",VEZA:"REVEAL",PROFETA:"PROPHESY",ENYUKA:"ASCEND",UMA:"IF",KHONA:"THEN",ZAMA:"TRY",BAMBA:"CATCH",CHAZA:"DEFINE",ISIKO:"RITE",BIZA:"INVOKE",BUYISA:"RETURN",NGENISA:"IMPORT",NGU:"IS",HHAYI:"NOT",KANYE:"AND",NOMA:"OR",KU:"IN",ENZA:"DO",ZINDLA:"REFLECT",BUSISA:"BLESS",GCOBA:"ANOINT",VALA:"SEAL",FAKAZA:"TESTIFY",IQINISO:"TRUE",AMANGA:"FALSE",LUTHO:"VOID",PHULA:"BREAK",QHUBEKA:"CONTINUE"},
-      compounds:{"QEDA UMA":"ENDIF","QEDA ZAMA":"ENDTRY"}}
+      compounds:{"QEDA UMA":"ENDIF","QEDA ZAMA":"ENDTRY"}},
+  ig:{name:"Igbo",
+      aliases:{MALITE:"BEGIN",OKIKE:"CREATION",NJEDEBE:"END",KUO:"BREATHE",BANYE:"INTO",MA:"IF",MGBE:"THEN",NWAA:"TRY",JIDE:"CATCH",EMUME:"RITE",WEGHACHI:"RETURN",WEBATA:"IMPORT",MBA:"NOT",NA:"AND",IME:"IN",MEE:"DO",TEE:"ANOINT",MECHIE:"SEAL",AKAEBE:"TESTIFY",EZIOKWU:"TRUE",EFU:"VOID",KWUPUTA:"DECLARE",DIKA:"AS",NDU:"LIFE",GOSIPUTA:"REVEAL",AMUMA:"PROPHESY",RIGOO:"ASCEND",KOWAA:"DEFINE",KPOO:"INVOKE",BU:"IS",MAOBU:"OR",TUGHARIA:"REFLECT",GOOZIE:"BLESS",UGHA:"FALSE",KWUSI:"BREAK",NOGIDE:"CONTINUE"},
+      compounds:{"NJEDEBE MA":"ENDIF","NJEDEBE NWAA":"ENDTRY","O BURU":"IF","MGBE AHU":"THEN"}},
+  pg:{name:"Nigerian Pidgin",
+      aliases:{OYA:"BEGIN",KREASHON:"CREATION",FINISH:"END",TALK:"DECLARE",BE:"AS",BLOW:"BREATHE",INSIDE:"INTO",SHOW:"REVEAL",COMOT:"ASCEND",DEN:"THEN",HOLD:"CATCH",ARRANGE:"DEFINE",JOB:"RITE",CALL:"INVOKE",CARRY:"IMPORT",NA:"IS",NO:"NOT",ABI:"OR",REASON:"REFLECT",ROB:"ANOINT",LOCK:"SEAL",WITNESS:"TESTIFY",NOTHING:"VOID",STOP:"BREAK",MOVE:"CONTINUE"},
+      compounds:{"FINISH IF":"ENDIF","FINISH TRY":"ENDTRY"}}
 };
+// Other codes a scroll may use: pcm is the standard code for Nigerian Pidgin.
+TONGUES.pcm=TONGUES.pg;
 function detectTongue(source){
   const m=source.match(/^[ \t]*#[ \t]*tongue[ \t]*:[ \t]*([A-Za-z]{2,8})/im);
   return m?m[1].toLowerCase():"en";
@@ -295,19 +339,20 @@ function lex(source){
         while(j<line.length && /[A-Za-z0-9_]/.test(line[j])) j++;
         const word=line.slice(col,j), up=word.toUpperCase();
         const type=KEYWORDS.has(up)?up:(aliases&&aliases[up]);
-        if(type){
-          // Two-word closers on one line: FEDISA FA -> ENDIF.
-          const closer=(aliases&&prevLine===ln+1)?tongue.compounds[prevWord+" "+up]:null;
-          if(closer){
-            tokens.pop();   // the FEDISA that opened it
-            tokens.push({type:closer, value:closer, line:prevLine, col:prevCol});
-            prevWord=""; prevLine=-1;
-          }else{
-            tokens.push({type:type, value:type, line:ln+1, col:sc});
-            prevWord=up; prevLine=ln+1; prevCol=sc;
-          }
+        // Two-word phrases on one line, side by side: FEDISA FA -> ENDIF,
+        // FINISH IF -> ENDIF, O BURU -> IF. Either word may be a name.
+        const last=tokens[tokens.length-1];
+        const closer=(tongue&&prevLine===ln+1&&last&&last.line===prevLine&&last.col===prevCol)
+          ?tongue.compounds[prevWord+" "+up]:null;
+        if(closer){
+          tokens.pop();   // the first word of the phrase
+          tokens.push({type:closer, value:closer, line:prevLine, col:prevCol});
+          prevWord=""; prevLine=-1;
+        }else{
+          if(type) tokens.push({type:type, value:type, line:ln+1, col:sc});
+          else tokens.push({type:"IDENT", value:word, line:ln+1, col:sc});
+          prevWord=up; prevLine=ln+1; prevCol=sc;
         }
-        else{ tokens.push({type:"IDENT", value:word, line:ln+1, col:sc}); prevWord=""; prevLine=-1; }
         col=j; continue;
       }
       const two=line.slice(col,col+2);                       // multi-char operators first
@@ -1550,6 +1595,9 @@ if(typeof document!=="undefined"){
   const hlcode=document.getElementById("hlcode");
   const gutter=document.getElementById("gutter");
   const out=document.getElementById("out");
+  const diag=document.getElementById("diag");
+  const badge=document.getElementById("engineBadge");
+  const runBtn=document.getElementById("runBtn");
   const samplesSel=document.getElementById("samples");
 
   // Regex tokenizer for the overlay highlighter (same keyword set as the
@@ -1565,7 +1613,7 @@ if(typeof document!=="undefined"){
       "|(\\b(?:"+kws.join("|")+")\\b)",  // keyword
       "gi");
   }
-  function esc(s){ return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+  function esc(s){ return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
   function highlight(src){
     let res="", last=0, m;
     const TOK_RE=tokReFor(src);
@@ -1579,13 +1627,189 @@ if(typeof document!=="undefined"){
     }
     return res+esc(src.slice(last));
   }
+  // Gutter marks from the real engine's counsel: line -> {severity, text}.
+  let marks=new Map();
   function render(){
     hlcode.innerHTML=highlight(editor.value)+"\n";   // trailing newline keeps scroll height aligned
     const n=editor.value.split("\n").length;
-    let g=""; for(let i=1;i<=n;i++) g+=i+"\n";
-    gutter.textContent=g;
+    let g="";
+    for(let i=1;i<=n;i++){
+      const mk=marks.get(i);
+      g+=mk?'<span class="mark '+mk.severity+'" title="'+esc(mk.text)+'">'+i+"</span>\n":i+"\n";
+    }
+    gutter.innerHTML=g;
   }
-  editor.addEventListener("input",render);
+
+  function addLine(text,cls){
+    let c=cls||"";
+    if(!c&&(text.charAt(0)==="["||text.indexOf("🔮")===0||text.indexOf("🕊")===0)) c="divine";
+    const d=document.createElement("div");
+    d.className="cline"+(c?" "+c:"");
+    d.textContent=text;
+    out.appendChild(d);
+    return d;
+  }
+
+  /* ----- the real engine, in a Web Worker (engine-worker.js) ----- */
+  const HARD_DEADLINE_MS=12000;   // the engine's own sandbox grant is 5s; this frees a stuck worker
+  let worker=null, engineReady=false, seq=0;
+  const pending=new Map();
+  function setBadge(state,detail){
+    badge.className="engine "+state;
+    badge.textContent=state==="real"?"Real engine"
+      :state==="waking"?"Waking the real engine…":"Lite engine";
+    badge.title=state==="real"?"Running this repository's own interpreter (Python, via WebAssembly), sandboxed."
+      :state==="waking"?"Loading the real engine. The lite engine answers until it is ready."
+      :"The real engine could not wake"+(detail?" ("+detail+")":"")+". The lite engine knows the core language only.";
+  }
+  function startEngine(){
+    if(typeof Worker==="undefined"||typeof WebAssembly==="undefined"){ setBadge("lite","this browser has no Web Workers or WebAssembly"); return; }
+    try{ worker=new Worker("engine-worker.js"); }
+    catch(e){ setBadge("lite",e.message); return; }
+    setBadge("waking");
+    worker.onmessage=(e)=>{
+      const m=e.data||{};
+      if(m.type==="ready"){
+        engineReady=true;
+        setBadge("real");
+        addEngineSamples(m.samples||[]);
+        if(lastRunWasLite&&!running) runCreation();   // answer again, in full voice
+        else scheduleCheck(0);
+      }else if(m.type==="failed"){
+        stopEngine(); setBadge("lite",m.message);
+      }else if(m.type==="result"){
+        const p=pending.get(m.id);
+        if(p){ pending.delete(m.id); clearTimeout(p.timer); p.resolve(m.payload); }
+      }
+    };
+    worker.onerror=(e)=>{ e.preventDefault(); stopEngine(); setBadge("lite",e.message||"the worker stumbled"); };
+  }
+  function stopEngine(){
+    if(worker) worker.terminate();
+    worker=null; engineReady=false;
+    for(const [,p] of pending){ clearTimeout(p.timer); p.reject(new Error("released")); }
+    pending.clear();
+  }
+  function ask(kind,source){
+    return new Promise((resolve,reject)=>{
+      const id=++seq;
+      const timer=setTimeout(()=>{
+        pending.delete(id);
+        reject(new Error("deadline"));
+        stopEngine(); startEngine();   // a fresh worker: the stuck one is released
+      },HARD_DEADLINE_MS);
+      pending.set(id,{resolve,reject,timer});
+      worker.postMessage({id,kind,source});
+    });
+  }
+
+  /* ----- running a creation ----- */
+  let running=false, lastRunWasLite=false;
+  function header(label){
+    addLine("——— BEGIN CREATION · "+new Date().toLocaleTimeString()+" · "+label+" ———","dim");
+  }
+  function runLite(source){
+    lastRunWasLite=true;
+    header("lite engine");
+    const interp=new Interpreter();
+    try{ interp.run(source); }
+    catch(e){
+      for(const l of interp.output) addLine(l);
+      if(e instanceof GodError) addLine("✝ line "+(e.line||"?")+": "+e.message,"err");
+      else addLine("✝ "+((e&&e.message)||String(e)),"err");
+      if(badge.classList.contains("waking")) addLine("The real engine is still waking. It will answer again when ready.","dim");
+      return;
+    }
+    for(const l of interp.output) addLine(l);
+  }
+  function renderRun(p,source){
+    for(const l of p.output||[]) addLine(l);
+    const err=p.error;
+    if(err){
+      addLine("✝ "+(err.line?"line "+err.line+": ":"")+err.message,"err");
+      const lines=source.split("\n");
+      if(err.line&&err.line<=lines.length){
+        const gut="  "+err.line+" | ";
+        let shown=gut+lines[err.line-1];
+        if(err.col&&err.col>=1) shown+="\n"+" ".repeat(gut.length+err.col-1)+"^";
+        addLine(shown,"err src");
+      }
+      for(const f of err.trace||[]) addLine("  Called by "+f.rite+" (line "+f.line+")","err");
+      if(err.hint) addLine("Hint: "+err.hint,"hint");
+    }
+    addLine("· "+(p.stats?p.stats.ms:"?")+" ms · sandboxed · real engine","dim");
+  }
+  async function runCreation(){
+    if(running) return;
+    const source=editor.value;
+    out.innerHTML="";
+    if(!engineReady){ runLite(source); out.scrollTop=out.scrollHeight; return; }
+    running=true; lastRunWasLite=false;
+    runBtn.disabled=true;
+    header("real engine");
+    const wait=addLine("…","dim");
+    try{
+      const p=await ask("run",source);
+      wait.remove();
+      renderRun(p,source);
+    }catch(e){
+      wait.remove();
+      addLine("✝ The creation outlived its appointed time ("+HARD_DEADLINE_MS/1000+"s) and was released in peace. The engine is waking again.","err");
+    }finally{
+      running=false; runBtn.disabled=false;
+      out.scrollTop=out.scrollHeight;
+    }
+  }
+
+  /* ----- live counsel: the real parser and linter, as you type ----- */
+  let checkTimer=null;
+  function scheduleCheck(delay){
+    clearTimeout(checkTimer);
+    if(!engineReady) return;
+    checkTimer=setTimeout(async()=>{
+      const source=editor.value;
+      let p;
+      try{ p=await ask("check",source); }catch(_){ return; }
+      if(source!==editor.value) return;          // stale: the scripture moved on
+      marks=new Map();
+      const ds=p.diagnostics||[];
+      for(const d of ds){
+        if(!d.line||marks.has(d.line)&&marks.get(d.line).severity==="error") continue;
+        marks.set(d.line,{severity:d.severity==="error"?"error":"warning",text:(d.code?d.code+": ":"")+d.message});
+      }
+      render();
+      diag.innerHTML="";
+      diag.className="diag"+(ds.length?"":" pure");
+      if(!ds.length){ diag.textContent="✓ Pure: the parser and linter find nothing to counsel."; return; }
+      for(const d of ds.slice(0,6)){
+        const row=document.createElement("div");
+        row.className="drow "+(d.severity==="error"?"error":"warning");
+        row.textContent=(d.severity==="error"?"✝ ":"⚠ ")+"line "+(d.line||"?")+(d.col?":"+d.col:"")+" "+(d.code||"")+" "+d.message;
+        row.addEventListener("click",()=>jumpTo(d.line));
+        diag.appendChild(row);
+      }
+      if(ds.length>6){ const more=document.createElement("div"); more.className="drow"; more.textContent="…and "+(ds.length-6)+" more"; diag.appendChild(more); }
+    },delay===undefined?400:delay);
+  }
+  function jumpTo(line){
+    if(!line) return;
+    const lines=editor.value.split("\n");
+    let pos=0; for(let i=0;i<line-1&&i<lines.length;i++) pos+=lines[i].length+1;
+    editor.focus(); editor.selectionStart=editor.selectionEnd=pos;
+  }
+
+  /* ----- autosave (the cookies page promises it: it never leaves the device) ----- */
+  const STORE_KEY="godcode.playground.code";
+  let saveTimer=null;
+  function autosave(){ clearTimeout(saveTimer); saveTimer=setTimeout(saveNow,500); }
+  function saveNow(){
+    clearTimeout(saveTimer);
+    try{ localStorage.setItem(STORE_KEY,editor.value); }catch(_){}
+  }
+  addEventListener("pagehide",saveNow);   // keep the last keystrokes when the tab closes
+
+  /* ----- editor wiring ----- */
+  editor.addEventListener("input",()=>{ render(); autosave(); scheduleCheck(); });
   editor.addEventListener("scroll",()=>{
     hl.scrollTop=editor.scrollTop; hl.scrollLeft=editor.scrollLeft;
     gutter.scrollTop=editor.scrollTop;
@@ -1597,43 +1821,34 @@ if(typeof document!=="undefined"){
       const s=editor.selectionStart, en=editor.selectionEnd;
       editor.value=editor.value.slice(0,s)+"  "+editor.value.slice(en);
       editor.selectionStart=editor.selectionEnd=s+2;
-      render();
+      render(); autosave(); scheduleCheck();
     }
   });
 
-  function addLine(text,cls){
-    let c=cls||"";
-    if(!c&&(text.charAt(0)==="["||text.indexOf("🔮")===0||text.indexOf("🕊")===0)) c="divine";
-    const d=document.createElement("div");
-    d.className="cline"+(c?" "+c:"");
-    d.textContent=text;
-    out.appendChild(d);
-  }
-  function runCreation(){
-    out.innerHTML="";
-    addLine("——— BEGIN CREATION · "+new Date().toLocaleTimeString()+" ———","dim");
-    const interp=new Interpreter();
-    try{ interp.run(editor.value); }
-    catch(e){
-      for(const l of interp.output) addLine(l);
-      if(e instanceof GodError) addLine("✝ line "+(e.line||"?")+": "+e.message,"err");
-      else addLine("✝ "+((e&&e.message)||String(e)),"err");
-      out.scrollTop=out.scrollHeight;
-      return;
-    }
-    for(const l of interp.output) addLine(l);
-    out.scrollTop=out.scrollHeight;
-  }
-
+  /* ----- samples: the lite palette, then examples/ once the engine wakes ----- */
   for(const s of SAMPLES){
     const o=document.createElement("option");
     o.value=s.id; o.textContent=s.label;
     samplesSel.appendChild(o);
   }
+  const engineSamples=[];
+  function addEngineSamples(list){
+    if(engineSamples.length||!list.length) return;
+    const group=document.createElement("optgroup");
+    group.label="From examples/ (real engine)";
+    list.forEach((s,i)=>{
+      engineSamples.push(s);
+      const o=document.createElement("option");
+      o.value="ex:"+i; o.textContent=s.label;
+      group.appendChild(o);
+    });
+    samplesSel.appendChild(group);
+  }
   samplesSel.addEventListener("change",()=>{
-    const s=SAMPLES.find(x=>x.id===samplesSel.value);
+    const v=samplesSel.value;
+    const s=v.startsWith("ex:")?engineSamples[+v.slice(3)]:SAMPLES.find(x=>x.id===v);
     if(s){
-      editor.value=s.code; render(); runCreation();
+      editor.value=s.code; render(); autosave(); scheduleCheck(0); runCreation();
       // The link always reflects the editor: a sample replaces any shared link.
       try{ history.replaceState(null,"",location.pathname+location.search); }catch(e){}
     }
@@ -1656,17 +1871,24 @@ if(typeof document!=="undefined"){
     }catch(e){ addLine("✝ The share link could not be sealed: "+((e&&e.message)||e),"err"); }
   }
   document.getElementById("shareBtn").addEventListener("click",shareCreation);
-  document.getElementById("runBtn").addEventListener("click",runCreation);
+  runBtn.addEventListener("click",runCreation);
   document.getElementById("clearBtn").addEventListener("click",()=>{ out.innerHTML=""; });
 
-  // Boot: a shared link wins over the first sample.
+  // Boot: a shared link wins, then the creator's own saved work, then the first sample.
   (function(){
-    let shared=null;
+    let shared=null, saved=null;
     try{
       if(location.hash.indexOf("#c=")===0) shared=b64urlDecode(location.hash.slice(3));
     }catch(e){ shared=null; }
     if(shared===null||shared===undefined){
-      editor.value=SAMPLES[0].code;
+      try{ saved=localStorage.getItem(STORE_KEY); }catch(_){ saved=null; }
+      editor.value=saved?saved:SAMPLES[0].code;
+      if(saved){
+        const o=document.createElement("option");
+        o.value="__saved"; o.textContent="Your last creation";
+        samplesSel.insertBefore(o,samplesSel.firstChild);
+        samplesSel.value="__saved";
+      }
     }else{
       editor.value=shared;
       // Name the shared code honestly in the samples dropdown.
@@ -1676,6 +1898,7 @@ if(typeof document!=="undefined"){
       samplesSel.value="__shared";
     }
     render();
+    startEngine();
     runCreation();
   })();
 }

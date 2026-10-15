@@ -78,7 +78,10 @@ godcode ledger verify     # verify the covenant chain
 - Tongues: a scroll with `# tongue: tn` writes keywords in Setswana
   (`SIMOLOLA`/`BEGIN`, `SENOLA`/`REVEAL`, `FA`/`IF`...), and a scroll with
   `# tongue: zu` writes them in isiZulu (`QALA`/`BEGIN`, `VEZA`/`REVEAL`,
-  `UMA`/`IF`...); see `docs/TONGUES.md` for both word tables.
+  `UMA`/`IF`...). `# tongue: ig` is Igbo (`MALITE`/`BEGIN`,
+  `GOSIPỤTA` or `GOSIPUTA`/`REVEAL`, `Ọ BỤRỤ`/`IF`), and `# tongue: pg`
+  (or `pcm`) is Nigerian Pidgin (`OYA`/`BEGIN`, `SHOW`/`REVEAL`,
+  `FINISH IF`/`ENDIF`); see `docs/TONGUES.md` for every word table.
   English keywords still work in the same file. `fmt` renders canonical
   English; the named tools (`SHA256`, `UPPER`, ...) never translate. The
   language server reads the pragma: completions offer `SENOLA (REVEAL)`
@@ -143,6 +146,10 @@ before running it.
 
 ## House rules for agents working on God Code
 
+- **Rebuild the playground bundle after touching `godcode/`.** The live
+  playground runs the real engine from `site/playground/engine.json`.
+  Run `python3 site/playground/build_engine.py` and commit the result;
+  `tests/test_webrun.py` fails while the bundle is stale.
 - **No version numbers in anything a human reads.** God Code releases by date now, not by numbers. Never write a version label in a commit
   message, a doc, a site page, a README, a changelog header, or a Discord
   announcement. Changelog entries are headed by date. The future is commits,
