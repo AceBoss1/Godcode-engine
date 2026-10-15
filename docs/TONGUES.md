@@ -225,16 +225,23 @@ These words the sources do not settle. Native speakers decide them:
 
 | Tongue | Word | Keyword | Why it is open |
 |---|---|---|---|
-| Igbo | `MGBE`, `MGBE AHỤ` | THEN | The dictionary gives `m̀gbè` as "when"; "that" is `afù` in Onitsha |
-| Igbo | `RỊGOO` | ASCEND | Onitsha writes `-lịgo` (climb); the entry for "ascend" is `-rọgo` |
 | Igbo | `WEGHACHI` | RETURN | Not in the dictionary; Standard Igbo for "bring back" |
 | Igbo | `WEBATA` | IMPORT | Built from `-wè` (take) and `-bàta` (come in), not listed whole |
 | Igbo | `MAỌBỤ` | OR | Not in the dictionary, which has no word for "or" |
 | Igbo | `MBA` | NOT | The dictionary's `mbà!` is "no!"; Igbo negates with a suffix |
 | Igbo | `AKAEBE` | TESTIFY | The dictionary writes `aka ebē` (witness) as two words |
-| Pidgin | `ABI` | OR | Faraclas glosses `àbì` as a question marker; everyday Naija uses it for "or" |
 | Pidgin | `OYA`, `TALK`, `BLOW`, `INSIDE`, `SHOW`, `DEN`, `HOLD`, `ARRANGE`, `JOB`, `CALL`, `REASON`, `ROB`, `LOCK`, `WITNESS`, `NOTHING`, `STOP`, `MOVE` | | Not in the Faraclas sentences available; Naijalingo unreachable |
 | Pidgin | `KREASHON` | CREATION | A coined spelling |
+
+Settled 2026-10-15 in the review of this edition. Three words the
+sources had left open were explained by the contributor, and the keeper
+accepted them as written:
+
+| Tongue | Word | Keyword | Settled |
+|---|---|---|---|
+| Igbo | `MGBE`, `MGBE AHỤ` | THEN | `mgbe` answers to time: it is both "then" and "when". The dictionary records the "when" sense |
+| Igbo | `RỊGOO` | ASCEND | `rịgoo` is general Igbo. The dictionary's `-rọgo` is the Owerri form, and its `-lịgo` is the Onitsha one |
+| Pidgin | `ABI` | OR | Without a question mark, `abi` is "or". With one, `abi?` is "right?", the question use Faraclas records |
 
 Confirmed in the sources: every other Igbo word, and the Pidgin `COMOT`
 (Faraclas `kò̱mót`, leave), `CARRY` (`kari`, carry), `BE` (`bì`), `NA`

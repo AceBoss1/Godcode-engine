@@ -198,9 +198,9 @@ _IG_ALIASES = _with_plain_spellings({
     "BANYE": "INTO",          # WB -bànye 'enter; go in'
     "GOSI": "REVEAL",         # WB -go-si 'show'
     "AMỤMA": "PROPHESY",      # WB amụma 'prophecy' (a noun)
-    "RỊGOO": "ASCEND",        # ? WB -lịgo 'climb' (Onitsha l), -rọgo 'ascend'
+    "RỊGOO": "ASCEND",        # general Igbo; WB -lịgo (Onitsha), -rọgo (Owerri)
     "MA": "IF",               # WB mà 'but; if; whether'
-    "MGBE": "THEN",           # ? WB m̀gbè 'when' (also MGBE AHỤ, below)
+    "MGBE": "THEN",           # mgbe answers to time: 'then' and 'when' (WB m̀gbè 'when')
     "NWAA": "TRY",            # WB -nwà 'attempt; try' (nwà kene! 'just try!')
     "JIDE": "CATCH",          # WB -jide 'hold' (Jìde ... 'take, hold')
     "KỌWAA": "DEFINE",        # WB -kọwa 'explain; introduce'
@@ -227,8 +227,8 @@ _IG_ALIASES = _with_plain_spellings({
 })
 
 # Two-word phrases: closers, plus the natural Igbo "Ọ bụrụ" (if; WB has
-# the Onitsha form "Ọ bụlụ nà ...") and "mgbe ahụ" (then; ? Onitsha
-# says "afù" for "that").
+# the Onitsha form "Ọ bụlụ nà ...") and "mgbe ahụ" (then; Onitsha says
+# "afù" for "that").
 _IG_COMPOUNDS = _with_plain_spellings({
     ("NJEDEBE", "MA"): "ENDIF",
     ("NJEDEBE", "NWAA"): "ENDTRY",
@@ -274,7 +274,7 @@ _PG_ALIASES = {
     "CARRY": "IMPORT",        # F kari 'carry, take away'; carry come: bring
     "NA": "IS",               # F nà (Ìm nà ticha 's/he is a teacher')
     "NO": "NOT",              # F no (negation)
-    "ABI": "OR",              # ? F àbì is a question marker; everyday Naija: or
+    "ABI": "OR",              # abi: 'or'; abi?: 'right?' (F records the question use)
     "REASON": "REFLECT",      # ? reason am: think it over
     "ROB": "ANOINT",          # ? rub on
     "LOCK": "SEAL",           # ? lock
