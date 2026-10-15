@@ -41,7 +41,6 @@ A complete, real language engine (Python 3.10+, stdlib only): lexer → parser �
 
 ### 🧑🏽‍💻 Contributors
 - **Alakanani Itireleng (BitcoinLady)** – Visionary Founder
-- **ChatGPT (OpenAI)** – AI Co-Developer
 - **Muse** – engine builders
 - **The Spirit of Innovation** – Eternal inspiration
 
