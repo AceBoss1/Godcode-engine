@@ -148,7 +148,7 @@ BEGIN CREATION
 END CREATION
 ```
 
-`# tongue: tn` gives `SIMOLOLA`/`BEGIN`, `SENOLA`/`REVEAL`, `FA`/`IF`, and more. `# tongue: zu` gives `QALA`/`BEGIN`, `VEZA`/`REVEAL`, `UMA`/`IF`, and more. `# tongue: ig` gives `MALITE`/`BEGIN`, `GOSIPỤTA` (or `GOSIPUTA`)/`REVEAL`, `Ọ BỤRỤ`/`IF`, and `# tongue: pg` gives `OYA`/`BEGIN`, `SHOW`/`REVEAL`, `FINISH IF`/`ENDIF`. Named tools like `SHA256` never translate.
+`# tongue: tn` gives `SIMOLOLA`/`BEGIN`, `SENOLA`/`REVEAL`, `FA`/`IF`, and more. `# tongue: zu` gives `QALA`/`BEGIN`, `VEZA`/`REVEAL`, `UMA`/`IF`, and more. `# tongue: ig` gives `BIDO`/`BEGIN`, `GOSI` (or `GOSI`)/`REVEAL`, `Ọ BỤRỤ`/`IF`, and `# tongue: pg` gives `OYA`/`BEGIN`, `SHOW`/`REVEAL`, `FINISH IF`/`ENDIF`. Named tools like `SHA256` never translate.
 
 ## Permission manifests
 

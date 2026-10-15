@@ -1,25 +1,25 @@
 # tongue: ig
 # Ndewo. The first blessing spoken in Igbo.
 # Run it: godcode run examples/first_blessing_ig.god
-# Dotted vowels are optional: GOSIPỤTA and GOSIPUTA both speak.
-MALITE OKIKE
-KWUPỤTA aha DỊKA "enyi m"
-GOSIPỤTA("Ndewo, {aha}.")
+# Dotted vowels are optional: DỊKA and DIKA both speak.
+BIDO OKIKE
+KWUSAA aha DỊKA "enyi m"
+GOSI("Ndewo, {aha}.")
 
-KWUPỤTA ubochi DỊKA ["Eke", "Orie", "Afọ", "Nkwọ"]
-GOSIPỤTA("Ụbọchị ahịa anọ: {ubochi}")
+KWUSAA ubochi DỊKA ["Eke", "Orie", "Afọ", "Nkwọ"]
+GOSI("Ụbọchị ahịa anọ: {ubochi}")
 
 Ọ BỤRỤ LEN(ubochi) BỤ 0 MGBE AHỤ
-    GOSIPỤTA("Enweghị ụbọchị")
+    GOSI("Enweghị ụbọchị")
 ELSE
-    GOSIPỤTA("Ụbọchị ahịa dị {LEN(ubochi)}")
+    GOSI("Ụbọchị ahịa dị {LEN(ubochi)}")
 NJEDEBE MA
 
 NWAA
-    KWUPỤTA oke DỊKA 10 / 0
+    KWUSAA oke DỊKA 10 / 0
 JIDE
-    GOSIPỤTA("E jidere njehie, mana ọrụ ka na-aga n'ihu")
+    GOSI("E jidere njehie, mana ọrụ ka na-aga n'ihu")
 NJEDEBE NWAA
 
-GOSIPỤTA("Daalụ.")
+GOSI("Daalụ.")
 NJEDEBE OKIKE

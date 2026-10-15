@@ -97,35 +97,35 @@ Open a scroll with `# tongue: ig` and the grammar speaks Igbo:
 
 ```godcode
 # tongue: ig
-MALITE OKIKE
-KWUPỤTA aha DỊKA "Ụwa"
-GOSIPỤTA("Ndewo, {aha}.")
+BIDO OKIKE
+KWUSAA aha DỊKA "Ụwa"
+GOSI("Ndewo, {aha}.")
 NJEDEBE OKIKE
 ```
 
 | English | Igbo | English | Igbo |
 |---|---|---|---|
-| BEGIN | MALITE | IF | MA, or Ọ BỤRỤ |
+| BEGIN | BIDO | IF | MA, or Ọ BỤRỤ |
 | CREATION | OKIKE | THEN | MGBE, or MGBE AHỤ |
 | END | NJEDEBE | TRY | NWAA |
-| DECLARE | KWUPỤTA | CATCH | JIDE |
+| DECLARE | KWUSAA | CATCH | JIDE |
 | AS | DỊKA | DEFINE | KỌWAA |
 | BREATHE | KUO | RITE | EMUME |
 | LIFE | NDỤ | INVOKE | KPỌỌ |
 | INTO | BANYE | RETURN | WEGHACHI |
-| REVEAL | GOSIPỤTA | IMPORT | WEBATA |
+| REVEAL | GOSI | IMPORT | WEBATA |
 | PROPHESY | AMỤMA | IS | BỤ |
 | ASCEND | RỊGOO | NOT | MBA |
 | REFLECT | TỤGHARỊA | AND | NA |
-| BLESS | GỌỌZIE | OR | MAỌBỤ |
+| BLESS | GỌZIE | OR | MAỌBỤ |
 | ANOINT | TEE | IN | IME |
 | SEAL | MECHIE | DO | MEE |
 | TESTIFY | AKAEBE | TRUE | EZIOKWU |
 | BREAK | KWỤSỊ | FALSE | ỤGHA |
-| CONTINUE | NỌGIDE | VOID | EFU |
+| CONTINUE | GABA | VOID | EFU |
 
 Igbo is written with dotted vowels, but many keyboards cannot type them,
-so every word also works without its marks: `GOSIPỤTA` and `GOSIPUTA`
+so every word also works without its marks: `DỊKA` and `DIKA`
 both speak, as do `Ọ BỤRỤ` and `O BURU`. Four phrases are spoken as two
 words on one line: `Ọ BỤRỤ` opens an `IF`, `MGBE AHỤ` is its `THEN`,
 `NJEDEBE MA` closes the `IF` (ENDIF), and `NJEDEBE NWAA` closes a `TRY`
@@ -208,6 +208,40 @@ tongue word becomes a keyword only under its own pragma, so a Pidgin
 scroll cannot name a variable `show` or `job`, while an English scroll
 still can.
 
+Checked 2026-10-15, word by word, against two sources. For Igbo,
+Williamson and Blench, *Dictionary of Ònìchà Igbo* (2nd edition, edited
+by Roger Blench, 2006). For Pidgin, Faraclas, *Nigerian Pidgin*
+(Routledge, 1996), through the example sentences quoted in APiCS Online.
+Naijalingo could not be reached. The Igbo dictionary is of Onitsha Igbo,
+where Standard Igbo `r` is often `l` (`-tụghalị` for `tụgharị`), and it
+lists verbs by root (`-gọzi`), so the table writes the command form or
+the Standard spelling. The check corrected five Igbo words, each now the
+dictionary's own: `BIDO` (`-bi-do`, begin) for `MALITE`, `KWUSAA`
+(`-kwusà`, proclaim; declare) for `KWUPỤTA`, `GOSI` (`-go-si`, show)
+for `GOSIPỤTA`, `GỌZIE` (`-gọzi`, bless) for `GỌỌZIE`, and `GABA`
+(`-gaba`, go on; continue) for `NỌGIDE`.
+
+These words the sources do not settle. Native speakers decide them:
+
+| Tongue | Word | Keyword | Why it is open |
+|---|---|---|---|
+| Igbo | `MGBE`, `MGBE AHỤ` | THEN | The dictionary gives `m̀gbè` as "when"; "that" is `afù` in Onitsha |
+| Igbo | `RỊGOO` | ASCEND | Onitsha writes `-lịgo` (climb); the entry for "ascend" is `-rọgo` |
+| Igbo | `WEGHACHI` | RETURN | Not in the dictionary; Standard Igbo for "bring back" |
+| Igbo | `WEBATA` | IMPORT | Built from `-wè` (take) and `-bàta` (come in), not listed whole |
+| Igbo | `MAỌBỤ` | OR | Not in the dictionary, which has no word for "or" |
+| Igbo | `MBA` | NOT | The dictionary's `mbà!` is "no!"; Igbo negates with a suffix |
+| Igbo | `AKAEBE` | TESTIFY | The dictionary writes `aka ebē` (witness) as two words |
+| Pidgin | `ABI` | OR | Faraclas glosses `àbì` as a question marker; everyday Naija uses it for "or" |
+| Pidgin | `OYA`, `TALK`, `BLOW`, `INSIDE`, `SHOW`, `DEN`, `HOLD`, `ARRANGE`, `JOB`, `CALL`, `REASON`, `ROB`, `LOCK`, `WITNESS`, `NOTHING`, `STOP`, `MOVE` | | Not in the Faraclas sentences available; Naijalingo unreachable |
+| Pidgin | `KREASHON` | CREATION | A coined spelling |
+
+Confirmed in the sources: every other Igbo word, and the Pidgin `COMOT`
+(Faraclas `kò̱mót`, leave), `CARRY` (`kari`, carry), `BE` (`bì`), `NA`
+(`Ìm nà ticha`, s/he is a teacher), `NO` (negation), and `FINISH`, which
+Faraclas records as a completion marker (`cho̱p dì nyam finish`, eat the
+yams completely).
+
 ## The editors speak the tongues too
 
 The language server reads the pragma in the open scroll. When it sees
@@ -215,7 +249,7 @@ The language server reads the pragma in the open scroll. When it sees
 (`SENOLA (REVEAL)`, `FEDISA FA (ENDIF)`), plus block snippets that
 unfold in that tongue. `# tongue: zu` brings `VEZA (REVEAL)` and
 `QEDA UMA (ENDIF)` the same way, `# tongue: ig` brings
-`GOSIPỤTA (REVEAL)` and `NJEDEBE MA (ENDIF)`, and `# tongue: pg` brings
+`GOSI (REVEAL)` and `NJEDEBE MA (ENDIF)`, and `# tongue: pg` brings
 `SHOW (REVEAL)` and `FINISH IF (ENDIF)`. Hovering a tongue word shows the
 English keyword's own documentation, so `SENOLA` explains itself as
 `REVEAL`, `VEZA` explains itself as `REVEAL`, and `SIMOLOLA TLHOLEGO` opens

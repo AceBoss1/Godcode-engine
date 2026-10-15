@@ -164,7 +164,7 @@ def _with_plain_spellings(table: dict) -> dict:
     """Add each word's spelling without tone and dot marks (Ọ -> O, Ụ -> U).
 
     Igbo is written with dotted vowels, but many keyboards cannot type
-    them, so ``GOSIPỤTA`` and ``GOSIPUTA`` both speak. Keys may be single
+    them, so ``DỊKA`` and ``DIKA`` both speak. Keys may be single
     words or two-word pairs.
     """
     import unicodedata
@@ -180,49 +180,55 @@ def _with_plain_spellings(table: dict) -> dict:
     return out
 
 
-# Igbo (ig) word -> canonical English keyword name. First edition: native
-# speakers are its rightful editors (see docs/TONGUES.md).
+# Igbo (ig) word -> canonical English keyword name. Checked 2026-10-15
+# against Williamson & Blench, *Dictionary of Ònìchà Igbo* (2nd edn, 2006),
+# "WB" below. WB is Onitsha Igbo, where Standard Igbo r is often l, and it
+# lists verbs by root (-gọzi); the words here are the command forms, or
+# the Standard spelling where Onitsha differs. A "?" marks a word WB does
+# not settle; docs/TONGUES.md lists them for native speakers to decide.
+# Native speakers are this table's rightful editors.
 _IG_ALIASES = _with_plain_spellings({
-    "MALITE": "BEGIN",        # begin, start
-    "OKIKE": "CREATION",      # creation (Chukwu Okike, God the Creator)
-    "NJEDEBE": "END",         # the end
-    "KWUPỤTA": "DECLARE",     # speak out, proclaim
-    "DỊKA": "AS",             # like, as
-    "KUO": "BREATHE",         # blow (breath)
-    "NDỤ": "LIFE",            # life
-    "BANYE": "INTO",          # go into, enter
-    "GOSIPỤTA": "REVEAL",     # show forth, reveal
-    "AMỤMA": "PROPHESY",      # prophecy
-    "RỊGOO": "ASCEND",        # go up
-    "MA": "IF",               # if, whether
-    "MGBE": "THEN",           # then, at that time (also MGBE AHỤ)
-    "NWAA": "TRY",            # try
-    "JIDE": "CATCH",          # hold, catch
-    "KỌWAA": "DEFINE",        # explain, define
-    "EMUME": "RITE",          # a ceremony, a rite
-    "KPỌỌ": "INVOKE",         # call
-    "WEGHACHI": "RETURN",     # bring back
-    "WEBATA": "IMPORT",       # bring in
-    "BỤ": "IS",               # is
-    "MBA": "NOT",             # no, not
-    "NA": "AND",              # and
-    "MAỌBỤ": "OR",            # or
-    "IME": "IN",              # inside, in
-    "MEE": "DO",              # do
-    "TỤGHARỊA": "REFLECT",    # turn over in the mind, reflect
-    "GỌỌZIE": "BLESS",        # bless
-    "TEE": "ANOINT",          # rub on (te mmanụ: anoint with oil)
-    "MECHIE": "SEAL",         # close (a seal closes the covenant)
-    "AKAEBE": "TESTIFY",      # testimony, witness
-    "EZIOKWU": "TRUE",        # the truth
-    "ỤGHA": "FALSE",          # a lie
-    "EFU": "VOID",            # empty, nothing
-    "KWỤSỊ": "BREAK",         # stop
-    "NỌGIDE": "CONTINUE",     # keep on, continue
+    "BIDO": "BEGIN",          # WB -bi-do 'begin'
+    "OKIKE": "CREATION",      # WB Òkìke 'Creator', òkìkè 'process of creation'
+    "NJEDEBE": "END",         # WB njedebe 'end; finish; terminus'
+    "KWUSAA": "DECLARE",      # WB -kwusà(sị) 'proclaim; declare'
+    "DỊKA": "AS",             # WB, in use: dịkà 'like' (Na-àgafè dịkà ...)
+    "KUO": "BREATHE",         # WB -kù 'blow; breathe' (-kù ume 'breathe')
+    "NDỤ": "LIFE",            # WB ndụ 'life'
+    "BANYE": "INTO",          # WB -bànye 'enter; go in'
+    "GOSI": "REVEAL",         # WB -go-si 'show'
+    "AMỤMA": "PROPHESY",      # WB amụma 'prophecy' (a noun)
+    "RỊGOO": "ASCEND",        # ? WB -lịgo 'climb' (Onitsha l), -rọgo 'ascend'
+    "MA": "IF",               # WB mà 'but; if; whether'
+    "MGBE": "THEN",           # ? WB m̀gbè 'when' (also MGBE AHỤ, below)
+    "NWAA": "TRY",            # WB -nwà 'attempt; try' (nwà kene! 'just try!')
+    "JIDE": "CATCH",          # WB -jide 'hold' (Jìde ... 'take, hold')
+    "KỌWAA": "DEFINE",        # WB -kọwa 'explain; introduce'
+    "EMUME": "RITE",          # WB emume 'custom; observance'
+    "KPỌỌ": "INVOKE",         # WB -kpọ 'call' (-kpọ afà 'call by name')
+    "WEGHACHI": "RETURN",     # ? not in WB; Standard Igbo 'bring back'
+    "WEBATA": "IMPORT",       # ? WB -wè 'take' + -bàta 'come in'
+    "BỤ": "IS",               # WB -bụ 'be'
+    "MBA": "NOT",             # ? WB mbà! 'no!' (Igbo negates with a suffix)
+    "NA": "AND",              # WB nà 'and'
+    "MAỌBỤ": "OR",            # ? not in WB; Standard Igbo ma ọ bụ 'or'
+    "IME": "IN",              # WB imē 'inside; interior'
+    "MEE": "DO",              # WB Mèe yā ... 'Do it ...'
+    "TỤGHARỊA": "REFLECT",    # WB -tụghalị uchè 'reflect' (Onitsha l)
+    "GỌZIE": "BLESS",         # WB -gọzi 'bless; invoke a blessing'
+    "TEE": "ANOINT",          # WB -te 'anoint'; -te mmanụ 'anoint with oil'
+    "MECHIE": "SEAL",         # WB -mechi 'shut, close'
+    "AKAEBE": "TESTIFY",      # ? WB aka ebē 'witness' (written as two words)
+    "EZIOKWU": "TRUE",        # WB ezi okwū 'truth' (Standard: eziokwu)
+    "ỤGHA": "FALSE",          # WB àma ụghā 'false witness'
+    "EFU": "VOID",            # WB efù 'emptiness'
+    "KWỤSỊ": "BREAK",         # WB -kwụsị 'stop'
+    "GABA": "CONTINUE",       # WB -gaba 'go on; continue to go'
 })
 
-# Two-word phrases: closers, plus the natural Igbo "Ọ bụrụ" (if) and
-# "mgbe ahụ" (then).
+# Two-word phrases: closers, plus the natural Igbo "Ọ bụrụ" (if; WB has
+# the Onitsha form "Ọ bụlụ nà ...") and "mgbe ahụ" (then; ? Onitsha
+# says "afù" for "that").
 _IG_COMPOUNDS = _with_plain_spellings({
     ("NJEDEBE", "MA"): "ENDIF",
     ("NJEDEBE", "NWAA"): "ENDTRY",
@@ -231,8 +237,8 @@ _IG_COMPOUNDS = _with_plain_spellings({
 })
 
 _IG_SNIPPETS = (
-    ("MALITE OKIKE … NJEDEBE OKIKE",
-     "MALITE OKIKE\\n\\t$0\\nNJEDEBE OKIKE",
+    ("BIDO OKIKE … NJEDEBE OKIKE",
+     "BIDO OKIKE\\n\\t$0\\nNJEDEBE OKIKE",
      "Open a new scroll"),
     ("Ọ BỤRỤ … MGBE AHỤ … NJEDEBE MA",
      "Ọ BỤRỤ ${1:condition} MGBE AHỤ\\n\\t$0\\nNJEDEBE MA",
@@ -245,32 +251,37 @@ _IG_SNIPPETS = (
 # Nigerian Pidgin (pg) word -> canonical English keyword name. Pidgin
 # shares many words with English (IF, TRY, AND, IN, DO, BLESS, LIFE,
 # TRUE, FALSE, RETURN, PROPHESY), so those simply stay as they are.
+# Checked 2026-10-15 against Faraclas, *Nigerian Pidgin* (1996), through
+# the example sentences quoted in APiCS Online ("F" below); Naijalingo
+# could not be reached. Faraclas writes Pidgin phonetically (kò̱mót for
+# comot); the spellings here are everyday written Naija. A "?" marks a
+# word these sources do not settle; see docs/TONGUES.md.
 _PG_ALIASES = {
-    "OYA": "BEGIN",           # come on, let's go
-    "KREASHON": "CREATION",   # creation
-    "FINISH": "END",          # finish
-    "TALK": "DECLARE",        # say it
-    "BE": "AS",               # be
-    "BLOW": "BREATHE",        # blow (breath)
-    "INSIDE": "INTO",         # inside
-    "SHOW": "REVEAL",         # show
-    "COMOT": "ASCEND",        # leave, go out (in peace)
-    "DEN": "THEN",            # then
-    "HOLD": "CATCH",          # hold am
-    "ARRANGE": "DEFINE",      # arrange, set up
-    "JOB": "RITE",            # a job of work
-    "CALL": "INVOKE",         # call
-    "CARRY": "IMPORT",        # carry come, bring
-    "NA": "IS",               # na im: it is
-    "NO": "NOT",              # no
-    "ABI": "OR",              # or
-    "REASON": "REFLECT",      # reason am: think it over
-    "ROB": "ANOINT",          # rub on (rob mmanu)
-    "LOCK": "SEAL",           # lock
-    "WITNESS": "TESTIFY",     # bear witness
-    "NOTHING": "VOID",        # nothing
-    "STOP": "BREAK",          # stop
-    "MOVE": "CONTINUE",       # move on
+    "OYA": "BEGIN",           # ? come on, let's go
+    "KREASHON": "CREATION",   # ? a coined spelling of "creation"
+    "FINISH": "END",          # F finish, a completion marker ('completely')
+    "TALK": "DECLARE",        # ? say it
+    "BE": "AS",               # F bì 'be' (copula)
+    "BLOW": "BREATHE",        # ? blow (breath)
+    "INSIDE": "INTO",         # ? inside
+    "SHOW": "REVEAL",         # ? show
+    "COMOT": "ASCEND",        # F kò̱mót 'leave'
+    "DEN": "THEN",            # ? then
+    "HOLD": "CATCH",          # ? hold am
+    "ARRANGE": "DEFINE",      # ? arrange, set up
+    "JOB": "RITE",            # ? a job of work
+    "CALL": "INVOKE",         # ? call
+    "CARRY": "IMPORT",        # F kari 'carry, take away'; carry come: bring
+    "NA": "IS",               # F nà (Ìm nà ticha 's/he is a teacher')
+    "NO": "NOT",              # F no (negation)
+    "ABI": "OR",              # ? F àbì is a question marker; everyday Naija: or
+    "REASON": "REFLECT",      # ? reason am: think it over
+    "ROB": "ANOINT",          # ? rub on
+    "LOCK": "SEAL",           # ? lock
+    "WITNESS": "TESTIFY",     # ? bear witness
+    "NOTHING": "VOID",        # ? nothing
+    "STOP": "BREAK",          # ? stop
+    "MOVE": "CONTINUE",       # ? move on
 }
 
 _PG_COMPOUNDS = {

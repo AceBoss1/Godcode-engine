@@ -213,8 +213,8 @@ const KEYWORDS = new Set((
 // ("FEDISA FA" -> ENDIF in Setswana, "QEDA UMA" -> ENDIF in isiZulu,
 // "FINISH IF" -> ENDIF in Pidgin, "O BURU" -> IF in Igbo). Chosen per
 // scroll by a `# tongue: xx` pragma. The lite engine reads plain letters
-// only, so it knows the Igbo words in their undotted spelling; the real
-// engine reads both.
+// only, so it runs the Igbo words in their undotted spelling (the dotted
+// ones are listed for the highlighter); the real engine runs both.
 const TONGUES={
   tn:{name:"Setswana",
       aliases:{SIMOLOLA:"BEGIN",TLHOLEGO:"CREATION",FEDISA:"END",BOLELA:"DECLARE",JAAKA:"AS",HEMA:"BREATHE",BOTSHELO:"LIFE",TENG:"INTO",SENOLA:"REVEAL",POROFETA:"PROPHESY",TLHATLOGA:"ASCEND",FA:"IF",TLOGA:"THEN",LEKA:"TRY",TSHWARA:"CATCH",TLHALOSA:"DEFINE",TIRO:"RITE",BITSA:"INVOKE",BUSETSA:"RETURN",TSENYA:"IMPORT",KE:"IS",GA:"NOT",LE:"AND",KGOTSA:"OR",MO:"IN",DIRA:"DO",AKANYA:"REFLECT",SEGOFATSA:"BLESS",TLOTSA:"ANOINT",TSWALA:"SEAL",PAKA:"TESTIFY",NNETE:"TRUE",MAAKA:"FALSE",SEPE:"VOID",KGAOLA:"BREAK",TSWELELA:"CONTINUE"},
@@ -223,8 +223,8 @@ const TONGUES={
       aliases:{QALA:"BEGIN",INDALO:"CREATION",QEDA:"END",MEMEZELA:"DECLARE",NJENGA:"AS",PHEFUMULA:"BREATHE",IMPILO:"LIFE",PHAKATHI:"INTO",VEZA:"REVEAL",PROFETA:"PROPHESY",ENYUKA:"ASCEND",UMA:"IF",KHONA:"THEN",ZAMA:"TRY",BAMBA:"CATCH",CHAZA:"DEFINE",ISIKO:"RITE",BIZA:"INVOKE",BUYISA:"RETURN",NGENISA:"IMPORT",NGU:"IS",HHAYI:"NOT",KANYE:"AND",NOMA:"OR",KU:"IN",ENZA:"DO",ZINDLA:"REFLECT",BUSISA:"BLESS",GCOBA:"ANOINT",VALA:"SEAL",FAKAZA:"TESTIFY",IQINISO:"TRUE",AMANGA:"FALSE",LUTHO:"VOID",PHULA:"BREAK",QHUBEKA:"CONTINUE"},
       compounds:{"QEDA UMA":"ENDIF","QEDA ZAMA":"ENDTRY"}},
   ig:{name:"Igbo",
-      aliases:{MALITE:"BEGIN",OKIKE:"CREATION",NJEDEBE:"END",KUO:"BREATHE",BANYE:"INTO",MA:"IF",MGBE:"THEN",NWAA:"TRY",JIDE:"CATCH",EMUME:"RITE",WEGHACHI:"RETURN",WEBATA:"IMPORT",MBA:"NOT",NA:"AND",IME:"IN",MEE:"DO",TEE:"ANOINT",MECHIE:"SEAL",AKAEBE:"TESTIFY",EZIOKWU:"TRUE",EFU:"VOID",KWUPUTA:"DECLARE",DIKA:"AS",NDU:"LIFE",GOSIPUTA:"REVEAL",AMUMA:"PROPHESY",RIGOO:"ASCEND",KOWAA:"DEFINE",KPOO:"INVOKE",BU:"IS",MAOBU:"OR",TUGHARIA:"REFLECT",GOOZIE:"BLESS",UGHA:"FALSE",KWUSI:"BREAK",NOGIDE:"CONTINUE"},
-      compounds:{"NJEDEBE MA":"ENDIF","NJEDEBE NWAA":"ENDTRY","O BURU":"IF","MGBE AHU":"THEN"}},
+      aliases:{BIDO:"BEGIN",OKIKE:"CREATION",NJEDEBE:"END",KWUSAA:"DECLARE","DỊKA":"AS",KUO:"BREATHE","NDỤ":"LIFE",BANYE:"INTO",GOSI:"REVEAL","AMỤMA":"PROPHESY","RỊGOO":"ASCEND",MA:"IF",MGBE:"THEN",NWAA:"TRY",JIDE:"CATCH","KỌWAA":"DEFINE",EMUME:"RITE","KPỌỌ":"INVOKE",WEGHACHI:"RETURN",WEBATA:"IMPORT","BỤ":"IS",MBA:"NOT",NA:"AND","MAỌBỤ":"OR",IME:"IN",MEE:"DO","TỤGHARỊA":"REFLECT","GỌZIE":"BLESS",TEE:"ANOINT",MECHIE:"SEAL",AKAEBE:"TESTIFY",EZIOKWU:"TRUE","ỤGHA":"FALSE",EFU:"VOID","KWỤSỊ":"BREAK",GABA:"CONTINUE",DIKA:"AS",NDU:"LIFE",AMUMA:"PROPHESY",RIGOO:"ASCEND",KOWAA:"DEFINE",KPOO:"INVOKE",BU:"IS",MAOBU:"OR",TUGHARIA:"REFLECT",GOZIE:"BLESS",UGHA:"FALSE",KWUSI:"BREAK"},
+      compounds:{"NJEDEBE MA":"ENDIF","NJEDEBE NWAA":"ENDTRY","Ọ BỤRỤ":"IF","MGBE AHỤ":"THEN","O BURU":"IF","MGBE AHU":"THEN"}},
   pg:{name:"Nigerian Pidgin",
       aliases:{OYA:"BEGIN",KREASHON:"CREATION",FINISH:"END",TALK:"DECLARE",BE:"AS",BLOW:"BREATHE",INSIDE:"INTO",SHOW:"REVEAL",COMOT:"ASCEND",DEN:"THEN",HOLD:"CATCH",ARRANGE:"DEFINE",JOB:"RITE",CALL:"INVOKE",CARRY:"IMPORT",NA:"IS",NO:"NOT",ABI:"OR",REASON:"REFLECT",ROB:"ANOINT",LOCK:"SEAL",WITNESS:"TESTIFY",NOTHING:"VOID",STOP:"BREAK",MOVE:"CONTINUE"},
       compounds:{"FINISH IF":"ENDIF","FINISH TRY":"ENDTRY"}}
@@ -1605,13 +1605,17 @@ if(typeof document!=="undefined"){
   function tokReFor(src){
     let kws=[...KEYWORDS,"CONSULT","ANCHOR","INTENT","ON"];
     const t=TONGUES[detectTongue(src)];
-    if(t) kws=kws.concat(Object.keys(t.aliases));
+    if(t){
+      kws=kws.concat(Object.keys(t.aliases));
+      for(const phrase of Object.keys(t.compounds)) kws=kws.concat(phrase.split(" "));
+    }
+    // Word edges by Unicode letter, so dotted Igbo words (DỊKA, Ọ BỤRỤ) light up too.
     return new RegExp(
       "(#[^\\n]*)"+                       // comment
-      '|("(?:[^"\\\\\\n]|\\\\.)*\\"?")'+    // string (tolerates unterminated while typing)
+      '|("(?:[^"\\\\\\n]|\\\\.)*"?")'+    // string (tolerates unterminated while typing)
       "|(\\b\\d+(?:\\.\\d+)?\\b)"+        // number
-      "|(\\b(?:"+kws.join("|")+")\\b)",  // keyword
-      "gi");
+      "|((?<![\\p{L}\\p{N}_])(?:"+kws.join("|")+")(?![\\p{L}\\p{N}_]))",  // keyword
+      "giu");
   }
   function esc(s){ return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
   function highlight(src){

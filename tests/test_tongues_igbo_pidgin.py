@@ -80,10 +80,10 @@ def test_pidgin_leaves_shared_english_words_alone():
 
 
 def test_igbo_dotted_and_plain_spellings_both_speak():
-    dotted = '# tongue: ig\nMALITE OKIKE\nGOSIPỤTA("a")\nNJEDEBE OKIKE\n'
-    plain = '# tongue: ig\nMALITE OKIKE\nGOSIPUTA("a")\nNJEDEBE OKIKE\n'
+    dotted = '# tongue: ig\nBIDO OKIKE\nKWUSAA x DỊKA ỤGHA\nGOSI(x)\nNJEDEBE OKIKE\n'
+    plain = '# tongue: ig\nBIDO OKIKE\nKWUSAA x DIKA UGHA\nGOSI(x)\nNJEDEBE OKIKE\n'
     assert kinds(dotted) == kinds(plain)
-    assert run(dotted) == run(plain) == ["a"]
+    assert run(dotted) == run(plain) == ["false"]
 
 
 def test_igbo_two_word_phrases():
@@ -106,7 +106,7 @@ def test_phrases_need_one_line_and_side_by_side_words():
 
 
 def test_without_pragma_the_words_are_names():
-    assert kinds("SHOW TALK NJEDEBE GOSIPUTA") == [TokenType.IDENT] * 4
+    assert kinds("SHOW TALK NJEDEBE GOSI") == [TokenType.IDENT] * 4
     assert kinds("FINISH IF") == [TokenType.IDENT, TokenType.IF]
 
 
@@ -123,24 +123,24 @@ def test_english_and_older_tongues_are_unchanged():
 
 def test_igbo_runs_conditions_rites_loops_and_try():
     src = """# tongue: ig
-MALITE OKIKE
+BIDO OKIKE
 KỌWAA EMUME ekele(onye)
     WEGHACHI "Ndewo, " + onye
 NJEDEBE EMUME
-GOSIPỤTA(KPỌỌ ekele("Ada"))
-MA 2 BỤ 2 MGBE GOSIPỤTA(EZIOKWU)
+GOSI(KPỌỌ ekele("Ada"))
+MA 2 BỤ 2 MGBE GOSI(EZIOKWU)
 Ọ BỤRỤ MBA (1 BỤ 2) NA EZIOKWU MGBE AHỤ
-    GOSIPỤTA("ọ dị iche")
+    GOSI("ọ dị iche")
 NJEDEBE MA
 FOR n IN RANGE(5)
-    MA n BỤ 1 MGBE NỌGIDE
+    MA n BỤ 1 MGBE GABA
     MA n BỤ 3 MGBE KWỤSỊ
-    GOSIPỤTA(n)
+    GOSI(n)
 ENDFOR
 NWAA
-    KWUPỤTA x DỊKA 1 / 0
+    KWUSAA x DỊKA 1 / 0
 JIDE
-    GOSIPỤTA("jidere")
+    GOSI("jidere")
 NJEDEBE NWAA
 NJEDEBE OKIKE
 """
@@ -175,7 +175,7 @@ FINISH KREASHON
 
 def test_interpolation_speaks_the_tongue():
     assert run('# tongue: pg\nOYA KREASHON\nSHOW("{1 NA 1}")\nFINISH KREASHON\n') == ["true"]
-    assert run('# tongue: ig\nMALITE OKIKE\nGOSIPUTA("{1 BU 1}")\nNJEDEBE OKIKE\n') == ["true"]
+    assert run('# tongue: ig\nBIDO OKIKE\nGOSI("{1 BU 1}")\nNJEDEBE OKIKE\n') == ["true"]
 
 
 def test_fmt_renders_canonical_english():
@@ -201,15 +201,16 @@ def test_shipped_examples_run_in_the_sandbox(name, first):
 # ------------------------------------------------------------- the editors
 
 
-@pytest.mark.parametrize("code, word, label", [
-    ("ig", "GOSIPỤTA", "GOSIPỤTA (REVEAL)"),
-    ("pg", "SHOW", "SHOW (REVEAL)"),
+@pytest.mark.parametrize("code, word, canonical", [
+    ("ig", "GOSI", "REVEAL"),
+    ("ig", "KPỌỌ", "INVOKE"),
+    ("pg", "SHOW", "REVEAL"),
 ])
-def test_lsp_offers_the_tongue_words(code, word, label):
+def test_lsp_offers_the_tongue_words(code, word, canonical):
     items = lsp.completion_items(f"# tongue: {code}\n")
     labels = {item["label"] for item in items}
-    assert label in labels
-    assert lsp.tongue_hover_key(f"{word}(x)", 1, code) == "REVEAL"
+    assert f"{word} ({canonical})" in labels
+    assert lsp.tongue_hover_key(f"{word}(x)", 1, code) == canonical
 
 
 def test_lsp_snippets_travel_with_each_tongue():
@@ -229,13 +230,13 @@ def _grammar_patterns():
 
 def test_vscode_grammar_paints_igbo_and_pidgin():
     p = _grammar_patterns()
-    for word in ("GOSIPỤTA", "GOSIPUTA", "SHOW", "COMOT"):
+    for word in ("GOSI", "TỤGHARỊA", "TUGHARIA", "SHOW", "COMOT"):
         assert p["keyword-spirit"].search(word), word
     for word in ("NJEDEBE MA", "MGBE AHỤ", "Ọ BỤRỤ", "NWAA", "FINISH IF", "DEN", "HOLD"):
         assert p["keyword-control"].search(word), word
-    for word in ("MALITE OKIKE", "NJEDEBE OKIKE", "OYA KREASHON", "FINISH JOB"):
+    for word in ("BIDO OKIKE", "NJEDEBE OKIKE", "OYA KREASHON", "FINISH JOB"):
         assert p["keyword-structure"].search(word), word
-    assert p["keyword-declaration"].search("KWUPỤTA")
+    assert p["keyword-declaration"].search("KWUSAA")
     assert p["keyword-declaration"].search("TALK")
     assert p["constant-language"].search("EZIOKWU")
 
@@ -247,7 +248,7 @@ def _expand(body):
 
 
 @pytest.mark.parametrize("block, cond, code, opener, closer", [
-    ("Igbo creation block", "Igbo if", "ig", "MALITE OKIKE", "NJEDEBE OKIKE"),
+    ("Igbo creation block", "Igbo if", "ig", "BIDO OKIKE", "NJEDEBE OKIKE"),
     ("Pidgin creation block", "Pidgin if", "pg", "OYA KREASHON", "FINISH KREASHON"),
 ])
 def test_vscode_starter_snippets_run(block, cond, code, opener, closer):

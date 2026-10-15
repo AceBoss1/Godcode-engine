@@ -184,7 +184,7 @@
  "Igbo creation block": {
   "body": [
    "# tongue: ig",
-   "MALITE OKIKE",
+   "BIDO OKIKE",
    "\t${1:# Ndewo}",
    "\t$0",
    "\tRỊGOO",
@@ -196,7 +196,7 @@
  "Igbo if": {
   "body": [
    "Ọ BỤRỤ ${1:onye} BỤ ${2:ezigbo} MGBE AHỤ",
-   "\t${3:GOSIPỤTA(\"eluigwe\")}",
+   "\t${3:GOSI(\"eluigwe\")}",
    "NJEDEBE MA$0"
   ],
   "description": "Divine conditional in Igbo",
