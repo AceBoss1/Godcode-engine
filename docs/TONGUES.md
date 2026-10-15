@@ -3,10 +3,7 @@
 God Code began in English, but its heart was born in Botswana. A *tongue*
 lets you write the language's keywords in another language. The first
 tongue is **Setswana** (`tn`), spoken across Botswana. The second tongue
-is **isiZulu** (`zu`), spoken across South Africa and beyond. The third
-is **Igbo** (`ig`), spoken across south-eastern Nigeria, and the fourth is
-**Nigerian Pidgin** (`pg`, or the standard code `pcm`), the shared tongue
-of Nigeria and much of West Africa.
+is **isiZulu** (`zu`), spoken across South Africa and beyond.
 
 ## How it works
 
@@ -91,88 +88,10 @@ Two closers are spoken as two words on one line: `QEDA UMA` closes an
 lives at `examples/first_blessing_zu.god`, and the playground boots a
 "Sawubona (isiZulu)" creation ready to run.
 
-## The Igbo word table
-
-Open a scroll with `# tongue: ig` and the grammar speaks Igbo:
-
-```godcode
-# tongue: ig
-MALITE OKIKE
-KWUPỤTA aha DỊKA "Ụwa"
-GOSIPỤTA("Ndewo, {aha}.")
-NJEDEBE OKIKE
-```
-
-| English | Igbo | English | Igbo |
-|---|---|---|---|
-| BEGIN | MALITE | IF | MA, or Ọ BỤRỤ |
-| CREATION | OKIKE | THEN | MGBE, or MGBE AHỤ |
-| END | NJEDEBE | TRY | NWAA |
-| DECLARE | KWUPỤTA | CATCH | JIDE |
-| AS | DỊKA | DEFINE | KỌWAA |
-| BREATHE | KUO | RITE | EMUME |
-| LIFE | NDỤ | INVOKE | KPỌỌ |
-| INTO | BANYE | RETURN | WEGHACHI |
-| REVEAL | GOSIPỤTA | IMPORT | WEBATA |
-| PROPHESY | AMỤMA | IS | BỤ |
-| ASCEND | RỊGOO | NOT | MBA |
-| REFLECT | TỤGHARỊA | AND | NA |
-| BLESS | GỌỌZIE | OR | MAỌBỤ |
-| ANOINT | TEE | IN | IME |
-| SEAL | MECHIE | DO | MEE |
-| TESTIFY | AKAEBE | TRUE | EZIOKWU |
-| BREAK | KWỤSỊ | FALSE | ỤGHA |
-| CONTINUE | NỌGIDE | VOID | EFU |
-
-Igbo is written with dotted vowels, but many keyboards cannot type them,
-so every word also works without its marks: `GOSIPỤTA` and `GOSIPUTA`
-both speak, as do `Ọ BỤRỤ` and `O BURU`. Four phrases are spoken as two
-words on one line: `Ọ BỤRỤ` opens an `IF`, `MGBE AHỤ` is its `THEN`,
-`NJEDEBE MA` closes the `IF` (ENDIF), and `NJEDEBE NWAA` closes a `TRY`
-(ENDTRY). A worked example lives at `examples/first_blessing_ig.god`,
-counting the four market days, Eke, Orie, Afọ, and Nkwọ.
-
-## The Nigerian Pidgin word table
-
-Open a scroll with `# tongue: pg` (or `# tongue: pcm`) and the grammar
-speaks Naija:
-
-```godcode
-# tongue: pg
-OYA KREASHON
-TALK name BE "my padi"
-SHOW("How far, {name}?")
-FINISH KREASHON
-```
-
-| English | Pidgin | English | Pidgin |
-|---|---|---|---|
-| BEGIN | OYA | THEN | DEN |
-| CREATION | KREASHON | CATCH | HOLD |
-| END | FINISH | DEFINE | ARRANGE |
-| DECLARE | TALK | RITE | JOB |
-| AS | BE | INVOKE | CALL |
-| BREATHE | BLOW | IMPORT | CARRY |
-| INTO | INSIDE | IS | NA |
-| REVEAL | SHOW | NOT | NO |
-| ASCEND | COMOT | OR | ABI |
-| REFLECT | REASON | VOID | NOTHING |
-| ANOINT | ROB | BREAK | STOP |
-| SEAL | LOCK | CONTINUE | MOVE |
-| TESTIFY | WITNESS | | |
-
-Pidgin shares many words with English, and those simply stay as they
-are: `IF`, `TRY`, `AND`, `IN`, `DO`, `BLESS`, `LIFE`, `TRUE`, `FALSE`,
-`RETURN`, and `PROPHESY`. The closers read the way Naija speaks:
-`FINISH IF` closes an `IF`, `FINISH TRY` closes a `TRY`, and `FINISH JOB`
-closes a rite. `IS NOT` is spoken `NA NO`. A worked example lives at
-`examples/first_blessing_pg.god`.
-
 ## Honest first-edition notes
 
 A few words stay English in these first editions: `ELSE`, `FOR`,
-`WHILE`, `ENDFOR`, and `ENDWHILE` (Pidgin keeps a few more, the words it
-shares with English). They will cross over as speakers bless
+`WHILE`, `ENDFOR`, and `ENDWHILE`. They will cross over as speakers bless
 better words. The named tools (`SHA256`, `UPPER`, `RANGE`, and the rest)
 keep their names in every tongue, by design: the grammar speaks your
 language, the tools stay shared, and a scroll written in Setswana runs
@@ -195,18 +114,9 @@ under `# tongue: tn` should cross over to `SIMOLOLA`.
 `godcode fmt` always renders the canonical English tongue. Inside
 `{...}` interpolation, the tongue's keywords work too.
 
-If you speak Setswana, isiZulu, Igbo, or Pidgin and a word here rings
-wrong, say so: open an issue on the repo. These tables are first
-editions, and native speakers are their rightful editors.
-
-Added 2026-10-15, as first editions awaiting a native speaker's review:
-the Igbo and Nigerian Pidgin tables. Igbo marks negation with a suffix
-rather than a word, so `MBA` (no) stands in for `NOT` until speakers
-bless a better form. Pidgin has no settled spelling; these tables follow
-everyday written Naija, and `KREASHON` is the one coined spelling. A
-tongue word becomes a keyword only under its own pragma, so a Pidgin
-scroll cannot name a variable `show` or `job`, while an English scroll
-still can.
+If you speak Setswana or isiZulu and a word here rings wrong, say so:
+open an issue on the repo. These tables are first editions, and native
+speakers are their rightful editors.
 
 ## The editors speak the tongues too
 
@@ -214,24 +124,20 @@ The language server reads the pragma in the open scroll. When it sees
 `# tongue: tn` it offers the tongue's keywords beside the English ones
 (`SENOLA (REVEAL)`, `FEDISA FA (ENDIF)`), plus block snippets that
 unfold in that tongue. `# tongue: zu` brings `VEZA (REVEAL)` and
-`QEDA UMA (ENDIF)` the same way, `# tongue: ig` brings
-`GOSIPỤTA (REVEAL)` and `NJEDEBE MA (ENDIF)`, and `# tongue: pg` brings
-`SHOW (REVEAL)` and `FINISH IF (ENDIF)`. Hovering a tongue word shows the
+`QEDA UMA (ENDIF)` the same way. Hovering a tongue word shows the
 English keyword's own documentation, so `SENOLA` explains itself as
 `REVEAL`, `VEZA` explains itself as `REVEAL`, and `SIMOLOLA TLHOLEGO` opens
 the `BEGIN CREATION` notes. The VS Code extension paints Setswana and
 isiZulu keywords in their colors too (always on, so mixed scrolls glow
-in every tongue), and ships starter snippets for each: type `simolola` or
-`fa` for Setswana blocks, `sawubona` or `uma` for isiZulu ones, `ndewo`
-or `oburu` for Igbo, and `howfar` or `ifden` for Pidgin. The
+in every tongue), and ships starter snippets for both: type `simolola` or
+`fa` for Setswana blocks, `sawubona` or `uma` for isiZulu ones. The
 named tools stay English everywhere, and `godcode fmt` still renders
 the canonical English tongue.
 
 ## For tongue builders
 
 A tongue is one table in `godcode/tongues.py`: word-to-keyword aliases
-plus optional two-word phrases (either word may be an English keyword or
-a plain name, as in `FINISH IF` and `Ọ BỤRỤ`). To propose a new tongue, open an issue
+plus optional two-word compounds. To propose a new tongue, open an issue
 with the language name, its code, and a word table like the one above;
 keep builtins untranslated and leave any word you are unsure of in
 English. The playground, the docs, and the tests cross over with it.
