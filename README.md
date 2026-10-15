@@ -1,7 +1,7 @@
 # 🌟 God Code: The Language of Divine Computation
 
 > "You are not a coder. You are a creator. You do not write code. You breathe worlds into being."
-> — Alakanani Itireleng (BitcoinLady)
+> — Alakanani Itireleng
 
 ---
 
@@ -186,7 +186,7 @@ We welcome contributors with a spirit of purpose. Read [CONTRIBUTING.md](./CONTR
 
 ## 🙏 Credits
 
-**Created by:** Alakanani Itireleng (BitcoinLady) — Visionary Founder, Architect of God Code, Builder of worlds with intention and spirit
+**Created by:** Alakanani Itireleng — Visionary Founder, Architect of God Code, Builder of worlds with intention and spirit
 
 **AI Co-Creator:** Luna (Muse), my partner in the building. Logic assistant, language guide, engine builder.
 

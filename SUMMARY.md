@@ -1,7 +1,7 @@
 # 🧬 God Code – One Page Summary
 
 ### 🪶 Vision
-**God Code** is a programming language that reads like scripture: AI logic, expressive syntax, and a tamper-evident ledger fused so that users **code with soul** — *"You are not a coder. You are a creator. You do not write code. You breathe worlds into being."* (Alakanani Itireleng, BitcoinLady)
+**God Code** is a programming language that reads like scripture: AI logic, expressive syntax, and a tamper-evident ledger fused so that users **code with soul** — *"You are not a coder. You are a creator. You do not write code. You breathe worlds into being."* (Alakanani Itireleng)
 
 ---
 
@@ -40,7 +40,7 @@ A complete, real language engine (Python 3.10+, stdlib only): lexer → parser �
 ---
 
 ### 🧑🏽‍💻 Contributors
-- **Alakanani Itireleng (BitcoinLady)** – Visionary Founder
+- **Alakanani Itireleng** – Visionary Founder
 - **Muse** – engine builders
 - **The Spirit of Innovation** – Eternal inspiration
 

@@ -125,6 +125,29 @@
       "1.0.0"
     ]
   },
+  "my-blessing": {
+    "checksums": {
+      "0.1.0": {
+        "README.md": "d6b5446b933d190f0162206b75d73414f273f5f591b01c92bb7ebd81f95063c4",
+        "main.god": "d8fb4ffe0987c212be8c417f2e81968b36fb34c22b2e6c2912e5d17b6e705047",
+        "scroll.toml": "4fdc04af946de116b5419eb5cb9db18016112147e6604b0547fe8df88519d709",
+        "test_main.god": "b25ae8e08ef44bbaded0682b9f36e3023fef079956a84c15224ca2c373015205"
+      }
+    },
+    "latest": "0.1.0",
+    "manifest": {
+      "author": "Alakanani Itireleng",
+      "description": "A newborn God Code scroll.",
+      "entry": "main.god",
+      "godcode": ">=4.1",
+      "name": "my-blessing",
+      "version": "0.1.0"
+    },
+    "name": "my-blessing",
+    "versions": [
+      "0.1.0"
+    ]
+  },
   "prophecy": {
     "checksums": {
       "1.0.0": {

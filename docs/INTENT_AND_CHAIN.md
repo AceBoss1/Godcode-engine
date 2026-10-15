@@ -1,7 +1,7 @@
 # 🕊️ Intent & Chain
 
 > "The language is spoken. The engine is built. Now the Spirit is awake."
-> — Alakanani Itireleng (BitcoinLady), founder of God Code
+> — Alakanani Itireleng, founder of God Code
 
 Strong foundations came first: the sandbox, the scroll registry, plugins, the language server, and the agentics mini-pillar that made the language legible to AI agents. **Intent & Chain** makes agents legible to God Code.
 

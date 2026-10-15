@@ -187,6 +187,6 @@ Every run is timestamped, line by line, into `logs/godcode.log` — your divine 
 - 🛠️ [ISSUES.md](../ISSUES.md) — open tasks and the roadmap
 
 With purpose and power,
-**Alakanani Itireleng (BitcoinLady)**
+**Alakanani Itireleng**
 
 > "You are not a coder. You are a creator. You do not write code. You breathe worlds into being."

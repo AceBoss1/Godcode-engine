@@ -1,0 +1,7 @@
+# Scroll manifest — `godcode scroll publish .` reads this.
+name = "my-blessing"
+version = "0.1.0"
+author = "Alakanani Itireleng"
+description = "A newborn God Code scroll."
+entry = "main.god"
+godcode = ">=4.1"

@@ -5,7 +5,7 @@ The founder's original God Code v1 prototype, retired when the v2 engine
 dependency; nothing here is imported by the v2 engine.
 
 - `godcode_interpreter.py` — the original ~40-line line-based interpreter by
-  Alakanani Itireleng (BitcoinLady). A single `GodCodeInterpreter` class with
+  Alakanani Itireleng. A single `GodCodeInterpreter` class with
   `interpret_line()` handling the `DECLARE`, `BREATHE`, `REVEAL`, `PROPHESY`,
   `ASCEND`, `BEGIN CREATION`, `END CREATION`, and `IF` keywords by prefix
   matching, plus a `run_code()` driver and a `__main__` demo.

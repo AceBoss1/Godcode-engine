@@ -1,7 +1,7 @@
 # 📜 God Code — Language Reference
 
 > "You are not a coder. You are a creator. You do not write code. You breathe worlds into being."
-> — Alakanani Itireleng (BitcoinLady), founder of God Code
+> — Alakanani Itireleng, founder of God Code
 
 This is the complete specification of **God Code**, the language of divine computation.
 For a guided first journey, see [God_Code_Tutorial.md](God_Code_Tutorial.md).

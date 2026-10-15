@@ -1,7 +1,7 @@
 # godcode_interpreter.py
 
 # A simple Python interpreter for God Code v1
-# Created by: Alakanani Itireleng (BitcoinLady)
+# Created by: Alakanani Itireleng
 
 class GodCodeInterpreter:
     def __init__(self):

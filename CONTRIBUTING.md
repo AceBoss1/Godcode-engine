@@ -91,4 +91,4 @@ We are building a sacred space.
 ---
 
 **With love and vision,**
-Alakanani Itireleng (BitcoinLady)
+Alakanani Itireleng
